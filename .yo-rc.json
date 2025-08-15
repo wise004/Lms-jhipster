@@ -1,0 +1,22 @@
+{
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "authenticationType": "jwt",
+    "baseName": "Edupress",
+    "buildTool": "maven",
+    "cacheProvider": "ehcache",
+    "clientFramework": "react",
+    "devDatabaseType": "postgresql",
+    "enableHibernateCache": true,
+    "enableSwaggerCodegen": true,
+    "entities": [],
+    "jhiPrefix": "jhi",
+    "jhipsterVersion": "8.11.0",
+    "jwtSecretKey": "M2U1YWFhODkzMzhiZWI2MjY3MWM3YTgwMzI2Yjg0MzdkYTY1YmQ4NzY0MzdjMjI4ZDQ3ZmI3ZjhiZDQ1NTViNDc5NzA3NGM3Y2M0OTQzZWRhZWFjZDk0YzdmOTlmMTc3OTQxMTMyNDQ0YTVjYzI5MWFiYmVlZjE0YmQxMzk2Nzk=",
+    "languages": ["en", "ru"],
+    "nativeLanguage": "en",
+    "packageName": "com.edupress",
+    "prodDatabaseType": "postgresql",
+    "skipUserManagement": true
+  }
+}

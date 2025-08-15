@@ -1,0 +1,210 @@
+application {
+  config {
+    baseName Edupress
+    applicationType monolith
+    packageName com.edupress
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    buildTool maven
+    authenticationType jwt
+    clientFramework react
+    enableHibernateCache true
+    cacheProvider ehcache
+    enableSwaggerCodegen true
+    jhiPrefix jhi
+    skipUserManagement true
+  languages [en, ru]
+  }
+}
+
+enum Role { STUDENT, INSTRUCTOR, ADMIN }
+enum EnrollmentStatus { ACTIVE, COMPLETED, CANCELLED }
+enum PaymentStatus { PENDING, COMPLETED, FAILED, REFUNDED }
+enum CourseStatus { DRAFT, PUBLISHED, ARCHIVED }
+enum LessonType { VIDEO, ARTICLE, QUIZ, ASSIGNMENT }
+enum SubmissionStatus { SUBMITTED, GRADED, RETURNED }
+enum AttemptStatus { STARTED, SUBMITTED, GRADED }
+enum CertificateStatus { GENERATED, REVOKED }
+enum PostStatus { DRAFT, PUBLISHED, ARCHIVED }
+enum CommentStatus { VISIBLE, HIDDEN, DELETED }
+
+entity AppUser {
+  role Role required
+  firstName String
+  lastName String
+  email String required unique
+  phone String
+  bio Text
+  profilePictureUrl String
+  isActive Boolean required
+}
+
+entity Category {
+  name String required
+  slug String required unique
+  color String
+}
+
+entity Course {
+  title String required
+  slug String required unique
+  shortDescription String
+  description Text
+  thumbnailUrl String
+  price BigDecimal required
+  originalPrice BigDecimal
+  level String
+  language String
+  status CourseStatus required
+  isPublished Boolean required
+  isFeatured Boolean
+  averageRating Double
+  enrollmentCount Integer
+}
+
+entity Lesson {
+  title String required
+  description Text
+  content Text
+  videoUrl String
+  duration Integer
+  type LessonType required
+  isFree Boolean
+  sortOrder Integer
+  isPublished Boolean
+}
+
+entity Quiz {
+  title String required
+  description Text
+  timeLimit Integer
+  passingScore Integer
+  attemptsAllowed Integer
+  sortOrder Integer
+  questions Json
+  isPublished Boolean
+  availableFrom Instant
+  availableUntil Instant
+}
+
+entity Assignment {
+  title String required
+  description Text required
+  instructions Text
+  dueDate Instant
+  maxPoints Integer
+  submissionType String
+  allowedFileTypes Json
+  maxFileSize Integer
+  isPublished Boolean
+  allowLateSubmission Boolean
+  lateSubmissionPenalty Integer
+  sortOrder Integer
+}
+
+entity Enrollment {
+  enrollmentDate Instant
+  progressPercentage Integer
+  progress Json
+  lastAccessedAt Instant
+  status EnrollmentStatus
+  paymentStatus PaymentStatus
+  amountPaid BigDecimal
+  transactionId String
+  completedAt Instant
+}
+
+entity AssignmentSubmission {
+  submittedAt Instant
+  submissionText Text
+  fileUrls Json
+  grade Integer
+  feedback Text
+  status SubmissionStatus
+}
+
+entity QuizAttempt {
+  startedAt Instant
+  submittedAt Instant
+  score Integer
+  passed Boolean
+  answers Json
+  attemptNumber Integer
+  status AttemptStatus
+}
+
+entity Certificate {
+  url String required unique
+  issuedAt Instant required
+  status CertificateStatus required
+}
+
+entity Review {
+  rating Integer required
+  reviewText Text
+  createdAt Instant required
+}
+
+entity Comment {
+  content Text required
+  createdAt Instant required
+  updatedAt Instant
+  status CommentStatus required
+}
+
+entity BlogPost {
+  title String required
+  slug String required unique
+  summary String
+  content Text
+  coverImageUrl String
+  publishDate Instant
+  status PostStatus required
+}
+
+relationship ManyToOne {
+  Course{instructor(email)} to AppUser,
+  Course{category(name)} to Category,
+
+  Lesson{course} to Course,
+
+  Quiz{course} to Course,
+  Quiz{lesson} to Lesson,
+
+  Assignment{course} to Course,
+  Assignment{lesson} to Lesson,
+
+  Enrollment{course} to Course,
+  Enrollment{student(email)} to AppUser,
+
+  AssignmentSubmission{assignment} to Assignment,
+  AssignmentSubmission{student(email)} to AppUser,
+
+  QuizAttempt{quiz} to Quiz,
+  QuizAttempt{student(email)} to AppUser,
+
+  Certificate{enrollment} to Enrollment,
+
+  Review{course} to Course,
+  Review{student(email)} to AppUser,
+
+  Comment{lesson} to Lesson,
+  Comment{author(email)} to AppUser,
+
+  BlogPost{author(email)} to AppUser
+}
+
+relationship OneToMany {
+  Lesson{comments} to Comment{parent}
+}
+
+relationship ManyToOne {
+  Comment{parent} to Comment // self-referencing for threaded comments
+}
+
+paginate Course, Lesson, Quiz, Assignment, Enrollment, AssignmentSubmission, QuizAttempt, Certificate, Review, Comment, BlogPost with pagination
+service all with serviceClass
+dto all with mapstruct
+filter all
+
+search Course, Lesson with elasticsearch
