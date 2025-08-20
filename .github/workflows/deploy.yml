@@ -1,0 +1,129 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SERVER_IP: ${{ vars.SERVER_IP }}
+      SERVER_USER: ${{ vars.SERVER_USER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Ensure jq is available
+        shell: bash
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+
+      - name: Read ARM parameters (RG and Region)
+        id: armvars
+        shell: bash
+        run: |
+          RG=$(jq -r '.parameters.virtualMachineRG.value' infra/parameters.json)
+          REGION=$(jq -r '.parameters.location.value' infra/parameters.json)
+          echo "rg=$RG" >> "$GITHUB_OUTPUT"
+          echo "region=$REGION" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy ARM template (VM + networking)
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          scopeLevel: Resource Group
+          resourceGroupName: ${{ steps.armvars.outputs.rg }}
+          region: ${{ steps.armvars.outputs.region }}
+          template: infra/template.json
+          parameters: infra/parameters.json
+          deploymentName: edupress-${{ github.run_number }}
+
+      - name: Build application (Gradle if present, otherwise Maven)
+        id: build
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -x ./gradlew ]; then
+            chmod +x ./gradlew
+            ./gradlew bootJar -x test
+            JAR_PATH=$(ls -1 build/libs/*.jar | head -n1)
+          else
+            chmod +x ./mvnw || true
+            ./mvnw -DskipTests package
+            JAR_PATH=$(ls -1 target/*.jar | grep -v sources | grep -v original | head -n1)
+          fi
+          if [ -z "${JAR_PATH:-}" ]; then
+            echo "No JAR produced" >&2
+            exit 1
+          fi
+          echo "jar_path=$JAR_PATH" >> "$GITHUB_OUTPUT"
+          echo "Built: $JAR_PATH"
+
+      - name: Prepare SSH key
+        shell: bash
+        run: |
+          umask 077
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+
+      - name: Copy JAR to VM
+        shell: bash
+        run: |
+          JAR="${{ steps.build.outputs.jar_path }}"
+          if [ -z "$JAR" ]; then echo "Missing jar path" >&2; exit 1; fi
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.SERVER_USER }}@${{ env.SERVER_IP }}" "mkdir -p ~/app"
+          scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.SERVER_USER }}@${{ env.SERVER_IP }}:~/app/app.jar"
+
+      - name: Restart app on VM
+        shell: bash
+        run: |
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.SERVER_USER }}@${{ env.SERVER_IP }}" << 'EOF'
+          set -e
+          mkdir -p ~/app
+          # Stop previous app if running
+          pkill -f 'java -jar .*app.jar' || true
+          # Start new app and redirect logs
+          nohup java -jar ~/app/app.jar > ~/app/app.log 2>&1 &
+          sleep 3
+          if pgrep -f 'java -jar .*app.jar' >/dev/null; then
+            echo "App started"
+          else
+            echo "App failed to start" >&2
+            exit 1
+          fi
+          tail -n 100 ~/app/app.log || true
+          EOF
+
+      - name: Health check (port 8080)
+        shell: bash
+        run: |
+          set -e
+          echo "Waiting for app on http://${{ env.SERVER_IP }}:8080"
+          for i in {1..20}; do
+            if curl -fsS --max-time 3 "http://${{ env.SERVER_IP }}:8080" >/dev/null; then
+              echo "App is reachable"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "App not reachable on 8080 after timeouts" >&2
+          exit 1
