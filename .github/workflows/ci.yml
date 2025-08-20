@@ -40,6 +40,15 @@ jobs:
       - name: Build and test (unit + integration)
         run: ./mvnw -ntp -B verify
 
+      - name: Upload application JAR artifact
+        if: matrix.java == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: |
+            target/*.jar
+          if-no-files-found: error
+
       - name: Upload test reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
