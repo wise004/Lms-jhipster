@@ -47,12 +47,13 @@ const LoginModal = (props: ILoginModalProps) => {
             <Col md="12">
               <ValidatedField
                 name="username"
-                label={translate('global.form.username.label')}
-                placeholder={translate('global.form.username.placeholder')}
+                label={translate('global.form.email.label')}
+                placeholder={translate('global.form.email.placeholder')}
+                type="email"
                 required
                 autoFocus
                 data-cy="username"
-                validate={{ required: 'Username cannot be empty!' }}
+                validate={{ required: 'Email cannot be empty!' }}
                 register={register}
                 error={errors.username as FieldError}
                 isTouched={touchedFields.username}

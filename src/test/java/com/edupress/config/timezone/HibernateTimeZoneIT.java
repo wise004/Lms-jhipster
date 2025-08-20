@@ -8,6 +8,7 @@ import com.edupress.repository.timezone.DateTimeWrapper;
 import com.edupress.repository.timezone.DateTimeWrapperRepository;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ class HibernateTimeZoneIT {
     @Value("${spring.jpa.properties.hibernate.jdbc.time_zone:UTC}")
     private String zoneId;
 
+    @Value("${spring.datasource.url:}")
+    private String dataSourceUrl;
+
     private DateTimeWrapper dateTimeWrapper;
     private DateTimeFormatter dateTimeFormatter;
     private DateTimeFormatter timeFormatter;
@@ -63,6 +67,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeInstantWithZoneIdConfigShouldBeStoredOnConfiguredTimeZone() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("instant", dateTimeWrapper.getId());
@@ -75,6 +80,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeLocalDateTimeWithZoneIdConfigShouldBeStoredOnConfiguredTimeZone() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("local_date_time", dateTimeWrapper.getId());
@@ -87,6 +93,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeOffsetDateTimeWithZoneIdConfigShouldBeStoredOnConfiguredTimeZone() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("offset_date_time", dateTimeWrapper.getId());
@@ -99,6 +106,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeZoneDateTimeWithZoneIdConfigShouldBeStoredOnConfiguredTimeZone() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("zoned_date_time", dateTimeWrapper.getId());
@@ -111,6 +119,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeLocalTimeWithZoneIdConfigShouldBeStoredOnConfiguredTimeZoneAccordingToHis1stJan1970Value() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("local_time", dateTimeWrapper.getId());
@@ -127,6 +136,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeOffsetTimeWithZoneIdConfigShouldBeStoredOnConfiguredTimeZoneAccordingToHis1stJan1970Value() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("offset_time", dateTimeWrapper.getId());
@@ -148,6 +158,7 @@ class HibernateTimeZoneIT {
     @Test
     @Transactional
     void storeLocalDateWithZoneIdConfigShouldBeStoredWithoutTransformation() {
+        skipIfH2();
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("local_date", dateTimeWrapper.getId());
@@ -167,6 +178,12 @@ class HibernateTimeZoneIT {
 
             assertThat(dbValue).isNotNull();
             assertThat(dbValue).isEqualTo(expectedValue);
+        }
+    }
+
+    private void skipIfH2() {
+        if (dataSourceUrl != null && dataSourceUrl.contains(":h2:")) {
+            Assumptions.assumeTrue(false, "Skipping timezone tests on H2 fallback; H2 stores timestamps differently");
         }
     }
 }

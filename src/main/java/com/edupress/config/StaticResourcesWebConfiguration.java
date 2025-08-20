@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.CacheControl;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -14,8 +15,22 @@ import tech.jhipster.config.JHipsterProperties;
 @Profile({ JHipsterConstants.SPRING_PROFILE_PRODUCTION })
 public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
 
-    protected static final String[] RESOURCE_LOCATIONS = { "classpath:/static/", "classpath:/static/content/", "classpath:/static/i18n/" };
-    protected static final String[] RESOURCE_PATHS = { "/*.js", "/*.css", "/*.svg", "/*.png", "*.ico", "/content/**", "/i18n/*" };
+    protected static final String[] RESOURCE_LOCATIONS = {
+        "classpath:/static/",
+        "classpath:/static/content/",
+        "classpath:/static/i18n/",
+        "file:uploads/",
+    };
+    protected static final String[] RESOURCE_PATHS = {
+        "/*.js",
+        "/*.css",
+        "/*.svg",
+        "/*.png",
+        "*.ico",
+        "/content/**",
+        "/i18n/*",
+        "/uploads/**",
+    };
 
     private final JHipsterProperties jhipsterProperties;
 
@@ -24,7 +39,7 @@ public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         ResourceHandlerRegistration resourceHandlerRegistration = appendResourceHandler(registry);
         initializeResourceHandler(resourceHandlerRegistration);
     }

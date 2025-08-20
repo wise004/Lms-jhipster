@@ -1,0 +1,54 @@
+{
+  "annotations": {
+    "changelogDate": "20250815103530"
+  },
+  "applications": ["Edupress"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "submittedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "submissionText",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "fileUrls",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "grade",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "feedback",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "SubmissionStatus",
+      "fieldValues": "SUBMITTED,GRADED,RETURNED"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "AssignmentSubmission",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "assignment",
+      "relationshipName": "assignment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "email",
+      "otherEntityName": "appUser",
+      "relationshipName": "student",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

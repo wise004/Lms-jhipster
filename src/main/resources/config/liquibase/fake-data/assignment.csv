@@ -1,0 +1,11 @@
+id;title;description;instructions;due_date;max_points;submission_type;allowed_file_types;max_file_size;is_published;allow_late_submission;late_submission_penalty;sort_order
+1;wrongly;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T11:30:08;1562;but;../fake-data/blob/hipster.txt;1767;false;false;6343;7130
+2;scarcely switchboard;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-15T06:26:35;24319;out;../fake-data/blob/hipster.txt;11016;true;true;25798;21542
+3;pants boo;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T13:10:08;15802;and;../fake-data/blob/hipster.txt;23288;false;true;1672;4385
+4;impure badly circumference;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-15T08:51:45;31133;actual;../fake-data/blob/hipster.txt;4815;true;false;19932;7931
+5;gosh who naturally;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T20:18:49;1868;broadly carefully hurtful;../fake-data/blob/hipster.txt;24423;false;false;28144;21020
+6;atop;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-15T02:31:03;21804;yippee transparency;../fake-data/blob/hipster.txt;4910;false;false;20355;30499
+7;mostly;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T21:42:56;18104;although;../fake-data/blob/hipster.txt;22417;false;false;12123;32699
+8;hairy outlandish below;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T15:35:54;27134;briskly nicely tomatillo;../fake-data/blob/hipster.txt;21920;false;false;16868;12733
+9;knavishly openly behind;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-14T12:20:54;27072;daintily;../fake-data/blob/hipster.txt;12975;false;false;25434;23734
+10;festival;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2025-08-15T02:10:13;4000;remark fuss;../fake-data/blob/hipster.txt;29306;false;false;6185;26503

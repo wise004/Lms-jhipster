@@ -1,0 +1,28 @@
+{
+  "edupressApp": {
+    "review": {
+      "home": {
+        "title": "Reviews",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Review",
+        "createOrEditLabel": "Создать или отредактировать Review",
+        "notFound": "Reviews не найдено"
+      },
+      "created": "Новый Review создан с идентификатором {{ param }}",
+      "updated": "Review обновлен с идентификатором {{ param }}",
+      "deleted": "Review удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Review {{ id }}?"
+      },
+      "detail": {
+        "title": "Review"
+      },
+      "id": "ID",
+      "rating": "Rating",
+      "reviewText": "Review Text",
+      "createdAt": "Created At",
+      "course": "Course",
+      "student": "Student"
+    }
+  }
+}

@@ -59,9 +59,21 @@ public class WebConfigurer implements ServletContextInitializer, WebServerFactor
         if (server instanceof ConfigurableServletWebServerFactory servletWebServer) {
             File root;
             String prefixPath = resolvePathPrefix();
-            root = Path.of(prefixPath + "target/classes/static/").toFile();
-            if (root.exists() && root.isDirectory()) {
-                servletWebServer.setDocumentRoot(root);
+            try {
+                root = Path.of(prefixPath + "target/classes/static/").toFile();
+                if (root.exists() && root.isDirectory()) {
+                    servletWebServer.setDocumentRoot(root);
+                }
+            } catch (Exception e) {
+                // Fallback: try absolute path resolution for Windows JAR execution
+                try {
+                    root = Path.of("target/classes/static/").toAbsolutePath().toFile();
+                    if (root.exists() && root.isDirectory()) {
+                        servletWebServer.setDocumentRoot(root);
+                    }
+                } catch (Exception ignored) {
+                    // Ignore and continue without setting document root
+                }
             }
         }
     }

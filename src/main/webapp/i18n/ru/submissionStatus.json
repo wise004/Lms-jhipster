@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "SubmissionStatus": {
+      "null": "",
+      "SUBMITTED": "SUBMITTED",
+      "GRADED": "GRADED",
+      "RETURNED": "RETURNED"
+    }
+  }
+}

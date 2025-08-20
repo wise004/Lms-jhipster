@@ -16,6 +16,7 @@
       "livenessState": "Живой",
       "readinessState": "Готово",
       "ping": "Приложение",
+      "elasticsearch": "Elasticsearch",
       "db": "База данных"
     },
     "table": {

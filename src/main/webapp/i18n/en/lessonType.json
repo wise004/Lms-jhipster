@@ -1,0 +1,11 @@
+{
+  "edupressApp": {
+    "LessonType": {
+      "null": "",
+      "VIDEO": "VIDEO",
+      "ARTICLE": "ARTICLE",
+      "QUIZ": "QUIZ",
+      "ASSIGNMENT": "ASSIGNMENT"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router';
+import { Route } from 'react-router-dom';
 
 import Loadable from 'react-loadable';
 
@@ -9,6 +9,10 @@ import Home from 'app/modules/home/home';
 import EntitiesRoutes from 'app/entities/routes';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
+import CoursesPage from 'app/modules/catalog/CoursesPage';
+import CourseDetailPage from 'app/modules/catalog/CourseDetailPage';
+import LessonPlayer from 'app/modules/learn/LessonPlayer';
+import RegisterPage from 'app/modules/account/register/register';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 
@@ -25,6 +29,11 @@ const AppRoutes = () => {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="logout" element={<Logout />} />
+        <Route path="register" element={<RegisterPage />} />
+        {/* Public catalog */}
+        <Route path="courses" element={<CoursesPage />} />
+        <Route path="courses/:id" element={<CourseDetailPage />} />
+        <Route path="lesson/:id" element={<LessonPlayer />} />
         <Route
           path="admin/*"
           element={

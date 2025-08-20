@@ -20,6 +20,11 @@ logging:
     org.hibernate.SQL: DEBUG
     com.edupress: DEBUG
 
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
 spring:
   devtools:
     restart:
@@ -34,20 +39,25 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/Edupress
     username: Edupress
-    password:
+    password: Edupress
     hikari:
       poolName: Hikari
       auto-commit: false
+  # elasticsearch:
+  #   # Elasticsearch disabled for dev; remove URIs to avoid confusion
+  #   uris: http://localhost:9200
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
-    contexts: dev, faker
+    contexts: dev
+    # Don't drop schema on each restart; keeps data persistent in dev
+    drop-first: false
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
 
 server:
-  port: 8080
+  port: 8081
   # make sure requests the proxy uri instead of the server one
   forward-headers-strategy: native
 

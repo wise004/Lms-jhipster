@@ -1,0 +1,11 @@
+id;started_at;submitted_at;score;passed;answers;attempt_number;status
+1;2025-08-15T08:54:35;2025-08-14T12:21:01;4960;true;../fake-data/blob/hipster.txt;23891;GRADED
+2;2025-08-15T05:58:35;2025-08-14T19:26:49;7941;false;../fake-data/blob/hipster.txt;18021;STARTED
+3;2025-08-14T16:58:18;2025-08-15T08:55:35;15125;true;../fake-data/blob/hipster.txt;953;GRADED
+4;2025-08-15T09:17:57;2025-08-14T21:24:21;820;false;../fake-data/blob/hipster.txt;30315;SUBMITTED
+5;2025-08-15T08:09:19;2025-08-15T00:27:52;1446;true;../fake-data/blob/hipster.txt;16863;SUBMITTED
+6;2025-08-15T07:38:04;2025-08-15T03:57:09;20010;true;../fake-data/blob/hipster.txt;31367;SUBMITTED
+7;2025-08-14T15:18:01;2025-08-15T09:13:56;9936;true;../fake-data/blob/hipster.txt;17348;GRADED
+8;2025-08-15T05:07:43;2025-08-14T19:34:31;15404;false;../fake-data/blob/hipster.txt;26770;GRADED
+9;2025-08-15T09:43:08;2025-08-15T07:40:28;29;false;../fake-data/blob/hipster.txt;30108;SUBMITTED
+10;2025-08-15T04:37:50;2025-08-14T13:32:47;3456;false;../fake-data/blob/hipster.txt;11115;GRADED

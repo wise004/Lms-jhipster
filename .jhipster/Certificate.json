@@ -1,0 +1,38 @@
+{
+  "annotations": {
+    "changelogDate": "20250815103532"
+  },
+  "applications": ["Edupress"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "url",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "issuedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "CertificateStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "GENERATED,REVOKED"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Certificate",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "enrollment",
+      "relationshipName": "enrollment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

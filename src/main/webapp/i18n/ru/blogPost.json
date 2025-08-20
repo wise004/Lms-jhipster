@@ -1,0 +1,31 @@
+{
+  "edupressApp": {
+    "blogPost": {
+      "home": {
+        "title": "Blog Posts",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Blog Post",
+        "createOrEditLabel": "Создать или отредактировать Blog Post",
+        "notFound": "Blog Posts не найдено"
+      },
+      "created": "Новый Blog Post создан с идентификатором {{ param }}",
+      "updated": "Blog Post обновлен с идентификатором {{ param }}",
+      "deleted": "Blog Post удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Blog Post {{ id }}?"
+      },
+      "detail": {
+        "title": "Blog Post"
+      },
+      "id": "ID",
+      "title": "Title",
+      "slug": "Slug",
+      "summary": "Summary",
+      "content": "Content",
+      "coverImageUrl": "Cover Image Url",
+      "publishDate": "Publish Date",
+      "status": "Status",
+      "author": "Author"
+    }
+  }
+}

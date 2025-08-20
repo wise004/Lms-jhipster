@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "CommentStatus": {
+      "null": "",
+      "VISIBLE": "VISIBLE",
+      "HIDDEN": "HIDDEN",
+      "DELETED": "DELETED"
+    }
+  }
+}

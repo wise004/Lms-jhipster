@@ -45,6 +45,19 @@ public class CacheConfiguration {
     @Bean
     public JCacheManagerCustomizer cacheManagerCustomizer() {
         return cm -> {
+            createCache(cm, com.edupress.domain.AppUser.class.getName());
+            createCache(cm, com.edupress.domain.Category.class.getName());
+            createCache(cm, com.edupress.domain.Course.class.getName());
+            createCache(cm, com.edupress.domain.Lesson.class.getName());
+            createCache(cm, com.edupress.domain.Quiz.class.getName());
+            createCache(cm, com.edupress.domain.Assignment.class.getName());
+            createCache(cm, com.edupress.domain.Enrollment.class.getName());
+            createCache(cm, com.edupress.domain.AssignmentSubmission.class.getName());
+            createCache(cm, com.edupress.domain.QuizAttempt.class.getName());
+            createCache(cm, com.edupress.domain.Certificate.class.getName());
+            createCache(cm, com.edupress.domain.Review.class.getName());
+            createCache(cm, com.edupress.domain.Comment.class.getName());
+            createCache(cm, com.edupress.domain.BlogPost.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

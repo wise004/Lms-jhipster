@@ -1,0 +1,58 @@
+{
+  "annotations": {
+    "changelogDate": "20250815103531"
+  },
+  "applications": ["Edupress"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "startedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "submittedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "score",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "passed",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "answers",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "attemptNumber",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "AttemptStatus",
+      "fieldValues": "STARTED,SUBMITTED,GRADED"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "QuizAttempt",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "quiz",
+      "relationshipName": "quiz",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "email",
+      "otherEntityName": "appUser",
+      "relationshipName": "student",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

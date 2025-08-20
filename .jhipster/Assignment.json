@@ -1,0 +1,77 @@
+{
+  "annotations": {
+    "changelogDate": "20250815103528"
+  },
+  "applications": ["Edupress"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "instructions",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "dueDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "maxPoints",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "submissionType",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "allowedFileTypes",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "maxFileSize",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "isPublished",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "allowLateSubmission",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "lateSubmissionPenalty",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "sortOrder",
+      "fieldType": "Integer"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Assignment",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "lesson",
+      "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

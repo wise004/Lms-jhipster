@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "EnrollmentStatus": {
+      "null": "",
+      "ACTIVE": "ACTIVE",
+      "COMPLETED": "COMPLETED",
+      "CANCELLED": "CANCELLED"
+    }
+  }
+}

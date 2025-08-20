@@ -1,0 +1,31 @@
+{
+  "edupressApp": {
+    "appUser": {
+      "home": {
+        "title": "App Users",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый App User",
+        "createOrEditLabel": "Создать или отредактировать App User",
+        "notFound": "App Users не найдено"
+      },
+      "created": "Новый App User создан с идентификатором {{ param }}",
+      "updated": "App User обновлен с идентификатором {{ param }}",
+      "deleted": "App User удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить App User {{ id }}?"
+      },
+      "detail": {
+        "title": "App User"
+      },
+      "id": "ID",
+      "role": "Role",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "bio": "Bio",
+      "profilePictureUrl": "Profile Picture Url",
+      "isActive": "Is Active"
+    }
+  }
+}

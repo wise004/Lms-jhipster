@@ -14,7 +14,9 @@ application {
     jhiPrefix jhi
     skipUserManagement true
   languages [en, ru]
+  searchEngine no
   }
+  entities *
 }
 
 enum Role { STUDENT, INSTRUCTOR, ADMIN }
@@ -34,7 +36,7 @@ entity AppUser {
   lastName String
   email String required unique
   phone String
-  bio Text
+  bio TextBlob
   profilePictureUrl String
   isActive Boolean required
 }
@@ -49,7 +51,7 @@ entity Course {
   title String required
   slug String required unique
   shortDescription String
-  description Text
+  description TextBlob
   thumbnailUrl String
   price BigDecimal required
   originalPrice BigDecimal
@@ -64,8 +66,8 @@ entity Course {
 
 entity Lesson {
   title String required
-  description Text
-  content Text
+  description TextBlob
+  content TextBlob
   videoUrl String
   duration Integer
   type LessonType required
@@ -76,12 +78,12 @@ entity Lesson {
 
 entity Quiz {
   title String required
-  description Text
+  description TextBlob
   timeLimit Integer
   passingScore Integer
   attemptsAllowed Integer
   sortOrder Integer
-  questions Json
+  questions TextBlob
   isPublished Boolean
   availableFrom Instant
   availableUntil Instant
@@ -89,12 +91,12 @@ entity Quiz {
 
 entity Assignment {
   title String required
-  description Text required
-  instructions Text
+  description TextBlob
+  instructions TextBlob
   dueDate Instant
   maxPoints Integer
   submissionType String
-  allowedFileTypes Json
+  allowedFileTypes TextBlob
   maxFileSize Integer
   isPublished Boolean
   allowLateSubmission Boolean
@@ -105,7 +107,7 @@ entity Assignment {
 entity Enrollment {
   enrollmentDate Instant
   progressPercentage Integer
-  progress Json
+  progress TextBlob
   lastAccessedAt Instant
   status EnrollmentStatus
   paymentStatus PaymentStatus
@@ -116,10 +118,10 @@ entity Enrollment {
 
 entity AssignmentSubmission {
   submittedAt Instant
-  submissionText Text
-  fileUrls Json
+  submissionText TextBlob
+  fileUrls TextBlob
   grade Integer
-  feedback Text
+  feedback TextBlob
   status SubmissionStatus
 }
 
@@ -128,7 +130,7 @@ entity QuizAttempt {
   submittedAt Instant
   score Integer
   passed Boolean
-  answers Json
+  answers TextBlob
   attemptNumber Integer
   status AttemptStatus
 }
@@ -141,12 +143,12 @@ entity Certificate {
 
 entity Review {
   rating Integer required
-  reviewText Text
+  reviewText TextBlob
   createdAt Instant required
 }
 
 entity Comment {
-  content Text required
+  content TextBlob
   createdAt Instant required
   updatedAt Instant
   status CommentStatus required
@@ -156,7 +158,7 @@ entity BlogPost {
   title String required
   slug String required unique
   summary String
-  content Text
+  content TextBlob
   coverImageUrl String
   publishDate Instant
   status PostStatus required
@@ -194,10 +196,6 @@ relationship ManyToOne {
   BlogPost{author(email)} to AppUser
 }
 
-relationship OneToMany {
-  Lesson{comments} to Comment{parent}
-}
-
 relationship ManyToOne {
   Comment{parent} to Comment // self-referencing for threaded comments
 }
@@ -207,4 +205,4 @@ service all with serviceClass
 dto all with mapstruct
 filter all
 
-search Course, Lesson with elasticsearch
+// search disabled for dev environment without Docker/Elasticsearch

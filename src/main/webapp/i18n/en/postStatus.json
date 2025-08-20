@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "PostStatus": {
+      "null": "",
+      "DRAFT": "DRAFT",
+      "PUBLISHED": "PUBLISHED",
+      "ARCHIVED": "ARCHIVED"
+    }
+  }
+}

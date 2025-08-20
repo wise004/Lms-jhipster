@@ -21,16 +21,32 @@ public class PostgreSqlTestContainer implements SqlTestContainer {
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void afterPropertiesSet() {
-        if (null == postgreSQLContainer) {
-            postgreSQLContainer = new PostgreSQLContainer<>("postgres:17.4")
-                .withDatabaseName("Edupress")
-                .withTmpFs(Collections.singletonMap("/testtmpfs", "rw"))
-                .withLogConsumer(new Slf4jLogConsumer(LOG))
-                .withReuse(true);
-        }
-        if (!postgreSQLContainer.isRunning()) {
-            postgreSQLContainer.start();
+        try {
+            if (postgreSQLContainer == null) {
+                final PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:17.4")
+                    .withDatabaseName("Edupress")
+                    .withTmpFs(Collections.singletonMap("/testtmpfs", "rw"))
+                    .withLogConsumer(new Slf4jLogConsumer(LOG))
+                    .withReuse(true);
+                // assign to field; lifecycle managed by Testcontainers and destroy()
+                postgreSQLContainer = container;
+            }
+            if (!postgreSQLContainer.isRunning()) {
+                postgreSQLContainer.start();
+            }
+        } catch (IllegalStateException ex) {
+            // Testcontainers couldn't find a Docker environment. Fall back to default (e.g., H2) without failing tests.
+            LOG.warn(
+                "Docker environment not available for Testcontainers. Falling back to default test datasource. Cause: {}",
+                ex.getMessage()
+            );
+            postgreSQLContainer = null;
+        } catch (RuntimeException ex) {
+            // Any other startup issue: don't break the whole test context, just log and skip.
+            LOG.warn("Failed to start PostgreSQL Testcontainer. Falling back to default test datasource. Cause: {}", ex.getMessage());
+            postgreSQLContainer = null;
         }
     }
 

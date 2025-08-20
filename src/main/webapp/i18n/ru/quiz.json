@@ -1,0 +1,35 @@
+{
+  "edupressApp": {
+    "quiz": {
+      "home": {
+        "title": "Quizzes",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Quiz",
+        "createOrEditLabel": "Создать или отредактировать Quiz",
+        "notFound": "Quizzes не найдено"
+      },
+      "created": "Новый Quiz создан с идентификатором {{ param }}",
+      "updated": "Quiz обновлен с идентификатором {{ param }}",
+      "deleted": "Quiz удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Quiz {{ id }}?"
+      },
+      "detail": {
+        "title": "Quiz"
+      },
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "timeLimit": "Time Limit",
+      "passingScore": "Passing Score",
+      "attemptsAllowed": "Attempts Allowed",
+      "sortOrder": "Sort Order",
+      "questions": "Questions",
+      "isPublished": "Is Published",
+      "availableFrom": "Available From",
+      "availableUntil": "Available Until",
+      "course": "Course",
+      "lesson": "Lesson"
+    }
+  }
+}

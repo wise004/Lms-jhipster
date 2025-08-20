@@ -1,0 +1,31 @@
+{
+  "edupressApp": {
+    "assignmentSubmission": {
+      "home": {
+        "title": "Assignment Submissions",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Assignment Submission",
+        "createOrEditLabel": "Создать или отредактировать Assignment Submission",
+        "notFound": "Assignment Submissions не найдено"
+      },
+      "created": "Новый Assignment Submission создан с идентификатором {{ param }}",
+      "updated": "Assignment Submission обновлен с идентификатором {{ param }}",
+      "deleted": "Assignment Submission удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Assignment Submission {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment Submission"
+      },
+      "id": "ID",
+      "submittedAt": "Submitted At",
+      "submissionText": "Submission Text",
+      "fileUrls": "File Urls",
+      "grade": "Grade",
+      "feedback": "Feedback",
+      "status": "Status",
+      "assignment": "Assignment",
+      "student": "Student"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "edupressApp": {
+    "enrollment": {
+      "home": {
+        "title": "Enrollments",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Enrollment",
+        "createOrEditLabel": "Create or edit a Enrollment",
+        "notFound": "No Enrollments found"
+      },
+      "created": "A new Enrollment is created with identifier {{ param }}",
+      "updated": "A Enrollment is updated with identifier {{ param }}",
+      "deleted": "A Enrollment is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Enrollment {{ id }}?"
+      },
+      "detail": {
+        "title": "Enrollment"
+      },
+      "id": "ID",
+      "enrollmentDate": "Enrollment Date",
+      "progressPercentage": "Progress Percentage",
+      "progress": "Progress",
+      "lastAccessedAt": "Last Accessed At",
+      "status": "Status",
+      "paymentStatus": "Payment Status",
+      "amountPaid": "Amount Paid",
+      "transactionId": "Transaction Id",
+      "completedAt": "Completed At",
+      "course": "Course",
+      "student": "Student"
+    }
+  }
+}

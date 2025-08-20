@@ -7,7 +7,20 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Сущности",
-        "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
+        "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
+        "appUser": "App User",
+        "category": "Category",
+        "course": "Course",
+        "lesson": "Lesson",
+        "quiz": "Quiz",
+        "assignment": "Assignment",
+        "enrollment": "Enrollment",
+        "assignmentSubmission": "Assignment Submission",
+        "quizAttempt": "Quiz Attempt",
+        "certificate": "Certificate",
+        "review": "Review",
+        "comment": "Comment",
+        "blogPost": "Blog Post"
       },
       "account": {
         "main": "Профиль",

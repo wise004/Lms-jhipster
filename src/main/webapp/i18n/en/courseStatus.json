@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "CourseStatus": {
+      "null": "",
+      "DRAFT": "DRAFT",
+      "PUBLISHED": "PUBLISHED",
+      "ARCHIVED": "ARCHIVED"
+    }
+  }
+}

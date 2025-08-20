@@ -1,0 +1,11 @@
+id;role;first_name;last_name;email;phone;bio;profile_picture_url;is_active
+1;ADMIN;Candelario;Fahey;Augustine93@yahoo.com;204-460-6330 x230;../fake-data/blob/hipster.txt;lovingly;true
+2;STUDENT;Ambrose;Gusikowski;Jadyn65@yahoo.com;(441) 908-0687;../fake-data/blob/hipster.txt;mostly pulverize;true
+3;STUDENT;Billie;Oberbrunner;Justina12@hotmail.com;(683) 363-1579 x446;../fake-data/blob/hipster.txt;misguided yahoo;true
+4;INSTRUCTOR;Kenyatta;Kling;Orlo60@hotmail.com;(695) 994-2511 x25362;../fake-data/blob/hipster.txt;bruised besmirch bashfully;false
+5;INSTRUCTOR;Abraham;McDermott;Rogelio42@gmail.com;(381) 817-0311 x59060;../fake-data/blob/hipster.txt;red;false
+6;STUDENT;Joe;McGlynn-Abbott;Tiara.Monahan47@hotmail.com;1-511-226-5806 x674;../fake-data/blob/hipster.txt;celebrated brr astride;false
+7;INSTRUCTOR;Dena;Runte;Emmy.Franey86@gmail.com;434.377.1790 x66539;../fake-data/blob/hipster.txt;under harangue beside;true
+8;INSTRUCTOR;Alexis;Macejkovic-Hartmann;Evan72@yahoo.com;(820) 658-5233;../fake-data/blob/hipster.txt;rebuke daintily;true
+9;INSTRUCTOR;Kenneth;Thompson;Duane73@yahoo.com;856.923.3343;../fake-data/blob/hipster.txt;considering;false
+10;STUDENT;Cale;Stoltenberg;Dameon.Cartwright@gmail.com;508.802.0706 x390;../fake-data/blob/hipster.txt;provided ew;false

@@ -1,0 +1,11 @@
+id;submitted_at;submission_text;file_urls;grade;feedback;status
+1;2025-08-15T00:08:06;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;27978;../fake-data/blob/hipster.txt;GRADED
+2;2025-08-14T15:08:19;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;2413;../fake-data/blob/hipster.txt;SUBMITTED
+3;2025-08-15T01:31:46;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;28764;../fake-data/blob/hipster.txt;GRADED
+4;2025-08-15T03:07:16;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;17710;../fake-data/blob/hipster.txt;GRADED
+5;2025-08-15T02:40:43;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;22110;../fake-data/blob/hipster.txt;RETURNED
+6;2025-08-14T18:31:31;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;25740;../fake-data/blob/hipster.txt;GRADED
+7;2025-08-14T21:12:29;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;15185;../fake-data/blob/hipster.txt;GRADED
+8;2025-08-14T14:25:51;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;9232;../fake-data/blob/hipster.txt;SUBMITTED
+9;2025-08-14T11:49:06;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;8653;../fake-data/blob/hipster.txt;RETURNED
+10;2025-08-14T22:01:48;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.txt;10476;../fake-data/blob/hipster.txt;GRADED

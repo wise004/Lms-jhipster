@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "AttemptStatus": {
+      "null": "",
+      "STARTED": "STARTED",
+      "SUBMITTED": "SUBMITTED",
+      "GRADED": "GRADED"
+    }
+  }
+}

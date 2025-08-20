@@ -1,0 +1,10 @@
+{
+  "edupressApp": {
+    "Role": {
+      "null": "",
+      "STUDENT": "STUDENT",
+      "INSTRUCTOR": "INSTRUCTOR",
+      "ADMIN": "ADMIN"
+    }
+  }
+}

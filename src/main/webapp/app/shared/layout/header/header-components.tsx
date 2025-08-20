@@ -31,3 +31,12 @@ export const Home = () => (
     </NavLink>
   </NavItem>
 );
+
+export const Catalog = () => (
+  <NavItem>
+    <NavLink tag={Link} to="/courses" className="d-flex align-items-center">
+      <FontAwesomeIcon icon="book" />
+      <span>Catalog</span>
+    </NavLink>
+  </NavItem>
+);

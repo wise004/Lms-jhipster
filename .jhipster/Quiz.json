@@ -1,0 +1,69 @@
+{
+  "annotations": {
+    "changelogDate": "20250815103527"
+  },
+  "applications": ["Edupress"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "timeLimit",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "passingScore",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "attemptsAllowed",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "sortOrder",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "questions",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "isPublished",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "availableFrom",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "availableUntil",
+      "fieldType": "Instant"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Quiz",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "lesson",
+      "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

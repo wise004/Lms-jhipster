@@ -1,0 +1,11 @@
+id;enrollment_date;progress_percentage;progress;last_accessed_at;status;payment_status;amount_paid;transaction_id;completed_at
+1;2025-08-15T02:41:51;24834;../fake-data/blob/hipster.txt;2025-08-14T12:24:41;COMPLETED;REFUNDED;25522.85;pro royal greedily;2025-08-14T23:04:00
+2;2025-08-15T03:43:38;15836;../fake-data/blob/hipster.txt;2025-08-15T07:31:55;CANCELLED;PENDING;15968.1;greedily huge;2025-08-15T07:27:57
+3;2025-08-15T05:00:48;12476;../fake-data/blob/hipster.txt;2025-08-14T14:25:14;CANCELLED;PENDING;24790.4;uh-huh;2025-08-14T16:50:26
+4;2025-08-15T09:25:45;15899;../fake-data/blob/hipster.txt;2025-08-15T07:20:55;CANCELLED;FAILED;11501.29;keenly;2025-08-14T17:06:42
+5;2025-08-14T14:06:00;25706;../fake-data/blob/hipster.txt;2025-08-14T20:23:11;ACTIVE;PENDING;18979.16;paltry idolized;2025-08-14T11:24:14
+6;2025-08-14T19:50:55;24985;../fake-data/blob/hipster.txt;2025-08-15T05:54:54;CANCELLED;FAILED;17093.45;aboard grok whereas;2025-08-15T08:27:48
+7;2025-08-15T03:44:36;21242;../fake-data/blob/hipster.txt;2025-08-14T20:00:46;CANCELLED;FAILED;8957.4;exacerbate;2025-08-14T11:09:10
+8;2025-08-14T11:20:42;22215;../fake-data/blob/hipster.txt;2025-08-14T10:38:42;CANCELLED;FAILED;29844.98;down transcend circle;2025-08-15T03:07:00
+9;2025-08-15T08:21:17;29225;../fake-data/blob/hipster.txt;2025-08-15T01:45:32;CANCELLED;COMPLETED;29927.44;well-documented lest considering;2025-08-15T02:10:47
+10;2025-08-15T08:04:58;22732;../fake-data/blob/hipster.txt;2025-08-14T18:42:00;ACTIVE;REFUNDED;12076.79;linseed among;2025-08-14T14:07:25

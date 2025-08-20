@@ -1,0 +1,9 @@
+{
+  "edupressApp": {
+    "CertificateStatus": {
+      "null": "",
+      "GENERATED": "GENERATED",
+      "REVOKED": "REVOKED"
+    }
+  }
+}

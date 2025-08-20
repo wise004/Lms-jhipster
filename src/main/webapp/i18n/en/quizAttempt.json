@@ -1,0 +1,32 @@
+{
+  "edupressApp": {
+    "quizAttempt": {
+      "home": {
+        "title": "Quiz Attempts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Quiz Attempt",
+        "createOrEditLabel": "Create or edit a Quiz Attempt",
+        "notFound": "No Quiz Attempts found"
+      },
+      "created": "A new Quiz Attempt is created with identifier {{ param }}",
+      "updated": "A Quiz Attempt is updated with identifier {{ param }}",
+      "deleted": "A Quiz Attempt is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Quiz Attempt {{ id }}?"
+      },
+      "detail": {
+        "title": "Quiz Attempt"
+      },
+      "id": "ID",
+      "startedAt": "Started At",
+      "submittedAt": "Submitted At",
+      "score": "Score",
+      "passed": "Passed",
+      "answers": "Answers",
+      "attemptNumber": "Attempt Number",
+      "status": "Status",
+      "quiz": "Quiz",
+      "student": "Student"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "edupressApp": {
+    "assignment": {
+      "home": {
+        "title": "Assignments",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Assignment",
+        "createOrEditLabel": "Создать или отредактировать Assignment",
+        "notFound": "Assignments не найдено"
+      },
+      "created": "Новый Assignment создан с идентификатором {{ param }}",
+      "updated": "Assignment обновлен с идентификатором {{ param }}",
+      "deleted": "Assignment удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Assignment {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment"
+      },
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "instructions": "Instructions",
+      "dueDate": "Due Date",
+      "maxPoints": "Max Points",
+      "submissionType": "Submission Type",
+      "allowedFileTypes": "Allowed File Types",
+      "maxFileSize": "Max File Size",
+      "isPublished": "Is Published",
+      "allowLateSubmission": "Allow Late Submission",
+      "lateSubmissionPenalty": "Late Submission Penalty",
+      "sortOrder": "Sort Order",
+      "course": "Course",
+      "lesson": "Lesson"
+    }
+  }
+}

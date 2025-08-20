@@ -1,0 +1,27 @@
+{
+  "edupressApp": {
+    "certificate": {
+      "home": {
+        "title": "Certificates",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Certificate",
+        "createOrEditLabel": "Создать или отредактировать Certificate",
+        "notFound": "Certificates не найдено"
+      },
+      "created": "Новый Certificate создан с идентификатором {{ param }}",
+      "updated": "Certificate обновлен с идентификатором {{ param }}",
+      "deleted": "Certificate удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Certificate {{ id }}?"
+      },
+      "detail": {
+        "title": "Certificate"
+      },
+      "id": "ID",
+      "url": "Url",
+      "issuedAt": "Issued At",
+      "status": "Status",
+      "enrollment": "Enrollment"
+    }
+  }
+}

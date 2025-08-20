@@ -1,0 +1,39 @@
+{
+  "edupressApp": {
+    "course": {
+      "home": {
+        "title": "Courses",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Course",
+        "createOrEditLabel": "Создать или отредактировать Course",
+        "notFound": "Courses не найдено"
+      },
+      "created": "Новый Course создан с идентификатором {{ param }}",
+      "updated": "Course обновлен с идентификатором {{ param }}",
+      "deleted": "Course удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Course {{ id }}?"
+      },
+      "detail": {
+        "title": "Course"
+      },
+      "id": "ID",
+      "title": "Title",
+      "slug": "Slug",
+      "shortDescription": "Short Description",
+      "description": "Description",
+      "thumbnailUrl": "Thumbnail Url",
+      "price": "Price",
+      "originalPrice": "Original Price",
+      "level": "Level",
+      "language": "Language",
+      "status": "Status",
+      "isPublished": "Is Published",
+      "isFeatured": "Is Featured",
+      "averageRating": "Average Rating",
+      "enrollmentCount": "Enrollment Count",
+      "instructor": "Instructor",
+      "category": "Category"
+    }
+  }
+}

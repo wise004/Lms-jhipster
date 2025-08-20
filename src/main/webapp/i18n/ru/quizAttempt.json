@@ -1,0 +1,32 @@
+{
+  "edupressApp": {
+    "quizAttempt": {
+      "home": {
+        "title": "Quiz Attempts",
+        "refreshListLabel": "Обновить список",
+        "createLabel": "Создать новый Quiz Attempt",
+        "createOrEditLabel": "Создать или отредактировать Quiz Attempt",
+        "notFound": "Quiz Attempts не найдено"
+      },
+      "created": "Новый Quiz Attempt создан с идентификатором {{ param }}",
+      "updated": "Quiz Attempt обновлен с идентификатором {{ param }}",
+      "deleted": "Quiz Attempt удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Quiz Attempt {{ id }}?"
+      },
+      "detail": {
+        "title": "Quiz Attempt"
+      },
+      "id": "ID",
+      "startedAt": "Started At",
+      "submittedAt": "Submitted At",
+      "score": "Score",
+      "passed": "Passed",
+      "answers": "Answers",
+      "attemptNumber": "Attempt Number",
+      "status": "Status",
+      "quiz": "Quiz",
+      "student": "Student"
+    }
+  }
+}

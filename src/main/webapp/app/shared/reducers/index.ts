@@ -6,6 +6,7 @@ import entitiesReducers from 'app/entities/reducers';
 import locale from './locale';
 import authentication from './authentication';
 import applicationProfile from './application-profile';
+import register from 'app/modules/account/register/register.reducer';
 
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
@@ -14,6 +15,7 @@ const rootReducer: ReducersMapObject = {
   locale,
   applicationProfile,
   administration,
+  register,
   loadingBar,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   ...entitiesReducers,
