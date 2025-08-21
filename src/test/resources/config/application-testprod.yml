@@ -1,7 +1,7 @@
 # ===================================================================
 # Spring Boot configuration.
 #
-# This configuration is used for unit/integration tests with testcontainers database containers.
+# This configuration is used for unit/integration tests with PostgreSQL Testcontainers.
 #
 # To activate this configuration launch integration tests with the 'testcontainers' profile
 #
@@ -9,6 +9,9 @@
 # ===================================================================
 
 spring:
+  liquibase:
+    parameters:
+      databaseCompatibility: postgresql
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:

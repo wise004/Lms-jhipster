@@ -1,7 +1,7 @@
 # ===================================================================
 # Spring Boot configuration.
 #
-# This configuration is used for unit/integration tests with testcontainers database containers.
+# This configuration is used for unit/integration tests with PostgreSQL Testcontainers.
 #
 # To activate this configuration launch integration tests with the 'testcontainers' profile
 #
@@ -15,6 +15,10 @@ spring:
       auto-commit: false
       poolName: Hikari
       maximum-pool-size: 1
+  liquibase:
+    # Ensure changelog runs with Postgres semantics
+    parameters:
+      databaseCompatibility: postgresql
   jpa:
     open-in-view: false
     hibernate:
