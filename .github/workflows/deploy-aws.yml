@@ -1,9 +1,11 @@
 name: Deploy to AWS EC2
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
+      - develop
 
 permissions:
   contents: read
