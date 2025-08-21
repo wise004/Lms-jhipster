@@ -131,6 +131,17 @@ Desktop.ini
 *~
 .merge_file*
 
+# SSH keys and sensitive certs
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+
+# Local infra scratch files
+infra/parameters.local.json
+infra/template.local.json
+
 ######################
 # Gradle Wrapper
 ######################
