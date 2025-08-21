@@ -10,11 +10,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.edupress.IntegrationTest;
+import com.edupress.config.TestUserDetailsServiceConfiguration;
 import com.edupress.web.rest.vm.LoginVM;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @AutoConfigureMockMvc
 @IntegrationTest
+@Import(TestUserDetailsServiceConfiguration.class)
 class AuthenticateControllerIT {
 
     @Autowired
@@ -34,8 +37,8 @@ class AuthenticateControllerIT {
     @Test
     void testAuthorize() throws Exception {
         LoginVM login = new LoginVM();
-        login.setUsername("test");
-        login.setPassword("test");
+        login.setUsername("test@example.com");
+        login.setPassword("password");
         mockMvc
             .perform(post("/api/authenticate").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(login)))
             .andExpect(status().isOk())
@@ -48,8 +51,8 @@ class AuthenticateControllerIT {
     @Test
     void testAuthorizeWithRememberMe() throws Exception {
         LoginVM login = new LoginVM();
-        login.setUsername("test");
-        login.setPassword("test");
+        login.setUsername("test@example.com");
+        login.setPassword("password");
         login.setRememberMe(true);
         mockMvc
             .perform(post("/api/authenticate").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(login)))

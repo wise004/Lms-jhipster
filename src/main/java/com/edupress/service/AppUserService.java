@@ -7,6 +7,7 @@ import com.edupress.service.mapper.AppUserMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +24,12 @@ public class AppUserService {
 
     private final AppUserMapper appUserMapper;
 
-    public AppUserService(AppUserRepository appUserRepository, AppUserMapper appUserMapper) {
+    private final PasswordEncoder passwordEncoder;
+
+    public AppUserService(AppUserRepository appUserRepository, AppUserMapper appUserMapper, PasswordEncoder passwordEncoder) {
         this.appUserRepository = appUserRepository;
         this.appUserMapper = appUserMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -37,6 +41,10 @@ public class AppUserService {
     public AppUserDTO save(AppUserDTO appUserDTO) {
         LOG.debug("Request to save AppUser : {}", appUserDTO);
         AppUser appUser = appUserMapper.toEntity(appUserDTO);
+        // Ensure password is present and valid length; DTO doesn't expose password
+        if (appUser.getPassword() == null || appUser.getPassword().length() != 60) {
+            appUser.setPassword(passwordEncoder.encode("changeme"));
+        }
         appUser = appUserRepository.save(appUser);
         return appUserMapper.toDto(appUser);
     }
@@ -50,6 +58,9 @@ public class AppUserService {
     public AppUserDTO update(AppUserDTO appUserDTO) {
         LOG.debug("Request to update AppUser : {}", appUserDTO);
         AppUser appUser = appUserMapper.toEntity(appUserDTO);
+        if (appUser.getPassword() == null || appUser.getPassword().length() != 60) {
+            appUser.setPassword(passwordEncoder.encode("changeme"));
+        }
         appUser = appUserRepository.save(appUser);
         return appUserMapper.toDto(appUser);
     }

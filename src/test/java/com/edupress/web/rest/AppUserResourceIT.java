@@ -35,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class AppUserResourceIT {
 
+    // 60-char dummy hash to satisfy AppUser.password @Size(60)
+    private static final String DUMMY_PASSWORD_HASH = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
     private static final Role DEFAULT_ROLE = Role.STUDENT;
     private static final Role UPDATED_ROLE = Role.INSTRUCTOR;
 
@@ -99,7 +102,8 @@ class AppUserResourceIT {
             .phone(DEFAULT_PHONE)
             .bio(DEFAULT_BIO)
             .profilePictureUrl(DEFAULT_PROFILE_PICTURE_URL)
-            .isActive(DEFAULT_IS_ACTIVE);
+            .isActive(DEFAULT_IS_ACTIVE)
+            .password(DUMMY_PASSWORD_HASH);
     }
 
     /**
@@ -117,7 +121,8 @@ class AppUserResourceIT {
             .phone(UPDATED_PHONE)
             .bio(UPDATED_BIO)
             .profilePictureUrl(UPDATED_PROFILE_PICTURE_URL)
-            .isActive(UPDATED_IS_ACTIVE);
+            .isActive(UPDATED_IS_ACTIVE)
+            .password(DUMMY_PASSWORD_HASH);
     }
 
     @BeforeEach

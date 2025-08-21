@@ -2,6 +2,7 @@ package com.edupress.security.jwt;
 
 import com.edupress.config.SecurityConfiguration;
 import com.edupress.config.SecurityJwtConfiguration;
+import com.edupress.config.TestUserDetailsServiceConfiguration;
 import com.edupress.config.WebConfigurer;
 import com.edupress.management.SecurityMetersService;
 import com.edupress.web.rest.AuthenticateController;
@@ -27,6 +28,7 @@ import tech.jhipster.config.JHipsterProperties;
         SecurityMetersService.class,
         AuthenticateController.class,
         JwtAuthenticationTestUtils.class,
+        TestUserDetailsServiceConfiguration.class,
     }
 )
 public @interface AuthenticationIntegrationTest {
