@@ -98,26 +98,40 @@ jobs:
 
           install_java() {
             if command -v java >/dev/null 2>&1; then return; fi
-            if command -v dnf >/dev/null 2>&1; then
-              sudo dnf install -y java-21-amazon-corretto-headless || \
-              sudo dnf install -y java-17-amazon-corretto-headless || true
-            fi
-            if ! command -v java >/dev/null 2>&1; then
-              if command -v amazon-linux-extras >/dev/null 2>&1; then
-                sudo amazon-linux-extras enable corretto21 || sudo amazon-linux-extras enable corretto17 || true
-                sudo yum clean metadata || true
-                sudo yum install -y java-21-amazon-corretto-headless || \
-                sudo yum install -y java-17-amazon-corretto-headless || true
-              elif command -v apt-get >/dev/null 2>&1; then
-                sudo apt-get update -y
-                sudo apt-get install -y openjdk-21-jre-headless || sudo apt-get install -y openjdk-17-jre-headless
-              elif command -v yum >/dev/null 2>&1; then
-                sudo yum install -y java-21-openjdk-headless || \
-                sudo yum install -y java-17-openjdk-headless || \
-                sudo yum install -y java-11-openjdk-headless || true
-              else
-                echo "Package manager not found; ensure Java is installed" >&2
+            # Prefer Amazon Corretto on Amazon Linux (dnf/yum)
+            if command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1; then
+              # Add Corretto repo if missing
+              if [ ! -f /etc/yum.repos.d/corretto.repo ]; then
+                sudo rpm --import https://rpm.corretto.aws/corretto.key || true
+                curl -fsSL https://rpm.corretto.aws/corretto.repo | sudo tee /etc/yum.repos.d/corretto.repo >/dev/null || true
               fi
+              if command -v dnf >/dev/null 2>&1; then
+                sudo dnf clean all || true
+                sudo dnf makecache || true
+                sudo dnf install -y java-21-amazon-corretto-headless || \
+                sudo dnf install -y java-21-amazon-corretto || \
+                sudo dnf install -y java-17-amazon-corretto-headless || \
+                sudo dnf install -y java-17-amazon-corretto || true
+              else
+                sudo yum clean all || true
+                sudo yum makecache || true
+                sudo yum install -y java-21-amazon-corretto-headless || \
+                sudo yum install -y java-21-amazon-corretto || \
+                sudo yum install -y java-17-amazon-corretto-headless || \
+                sudo yum install -y java-17-amazon-corretto || true
+              fi
+            fi
+            # Debian/Ubuntu
+            if ! command -v java >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+              sudo apt-get update -y
+              sudo apt-get install -y openjdk-21-jre-headless || sudo apt-get install -y openjdk-17-jre-headless || true
+            fi
+            # Generic yum/dnf OpenJDK fallback
+            if ! command -v java >/dev/null 2>&1 && command -v dnf >/dev/null 2>&1; then
+              sudo dnf install -y java-21-openjdk-headless || sudo dnf install -y java-17-openjdk-headless || sudo dnf install -y java-11-openjdk-headless || true
+            fi
+            if ! command -v java >/dev/null 2>&1 && command -v yum >/dev/null 2>&1; then
+              sudo yum install -y java-21-openjdk-headless || sudo yum install -y java-17-openjdk-headless || sudo yum install -y java-11-openjdk-headless || true
             fi
             if ! command -v java >/dev/null 2>&1; then
               echo "Java installation failed" >&2
