@@ -92,18 +92,36 @@ jobs:
           DB_USER_VAL="${DB_USERNAME:-edupress}"
           JWT_SECRET_VAL="${JWT_BASE64_SECRET}"
 
-          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "$USER_NAME@$HOST" bash -s << 'EOF'
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "$USER_NAME@$HOST" \
+            "PORT='${PORT}' LOCAL_DB_FLAG='${LOCAL_DB_FLAG}' DB_NAME_VAL='${DB_NAME_VAL}' DB_USER_VAL='${DB_USER_VAL}' DB_PASSWORD='${DB_PASSWORD}' JWT_SECRET_VAL='${JWT_SECRET_VAL}' bash -s" << 'EOF'
           set -euo pipefail
 
           install_java() {
             if command -v java >/dev/null 2>&1; then return; fi
-            if command -v apt-get >/dev/null 2>&1; then
-              sudo apt-get update -y
-              sudo apt-get install -y openjdk-21-jre || sudo apt-get install -y openjdk-17-jre
-            elif command -v yum >/dev/null 2>&1; then
-              sudo yum install -y java-21-openjdk || sudo yum install -y java-17-openjdk
-            else
-              echo "Package manager not found; ensure Java is installed" >&2
+            if command -v dnf >/dev/null 2>&1; then
+              sudo dnf install -y java-21-amazon-corretto-headless || \
+              sudo dnf install -y java-17-amazon-corretto-headless || true
+            fi
+            if ! command -v java >/dev/null 2>&1; then
+              if command -v amazon-linux-extras >/dev/null 2>&1; then
+                sudo amazon-linux-extras enable corretto21 || sudo amazon-linux-extras enable corretto17 || true
+                sudo yum clean metadata || true
+                sudo yum install -y java-21-amazon-corretto-headless || \
+                sudo yum install -y java-17-amazon-corretto-headless || true
+              elif command -v apt-get >/dev/null 2>&1; then
+                sudo apt-get update -y
+                sudo apt-get install -y openjdk-21-jre-headless || sudo apt-get install -y openjdk-17-jre-headless
+              elif command -v yum >/dev/null 2>&1; then
+                sudo yum install -y java-21-openjdk-headless || \
+                sudo yum install -y java-17-openjdk-headless || \
+                sudo yum install -y java-11-openjdk-headless || true
+              else
+                echo "Package manager not found; ensure Java is installed" >&2
+              fi
+            fi
+            if ! command -v java >/dev/null 2>&1; then
+              echo "Java installation failed" >&2
+              exit 1
             fi
           }
 
@@ -173,7 +191,8 @@ jobs:
           configure_postgres
           open_firewall
           write_service
-          tail -n 200 ~/app/app.log || true
+          touch "${APP_DIR}/app.log" || true
+          tail -n 200 "${APP_DIR}/app.log" || true
           EOF
 
       - name: Health check
