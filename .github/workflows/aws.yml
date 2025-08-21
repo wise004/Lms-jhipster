@@ -2,6 +2,16 @@ name: Deploy to AWS EC2 (systemd)
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: false
+        default: develop
+      prepare_only:
+        description: "Prepare EC2 once (install Java/Postgres, create service) without deploying a new JAR"
+        required: true
+        type: boolean
+        default: false
   push:
     branches:
       - master
@@ -27,7 +37,13 @@ jobs:
           echo "[Deploy Workflow] version=v2 systemd-corretto; commit=${GITHUB_SHA}"
       - name: Checkout
         uses: actions/checkout@v4
+        if: ${{ github.event_name == 'push' || github.event.inputs.branch == '' || github.event.inputs.branch == null }}
 
+      - name: Checkout (manual branch)
+        uses: actions/checkout@v4
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch != '' }}
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up Java 21 (for build)
         uses: actions/setup-java@v4
         with:
@@ -37,6 +53,7 @@ jobs:
       - name: Build with Maven
         id: build
         shell: bash
+        if: ${{ github.event.inputs.prepare_only != 'true' }}
         run: |
           set -euo pipefail
           chmod +x ./mvnw || true
@@ -54,17 +71,18 @@ jobs:
 
       - name: Copy JAR to EC2 (~/app/edupress.jar)
         shell: bash
+        if: ${{ github.event.inputs.prepare_only != 'true' }}
         run: |
           JAR="${{ steps.build.outputs.jar_path }}"
           if [ -z "$JAR" ]; then echo "Missing jar path" >&2; exit 1; fi
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p ~/app"
           scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"
 
-      - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
+  - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
         shell: bash
         run: |
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" \
-            "LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
+    "PREPARE_ONLY='${{ github.event.inputs.prepare_only }}' LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
           set -e
           APP_DIR="$HOME/app"
           mkdir -p "$APP_DIR"
@@ -207,14 +225,24 @@ WantedBy=multi-user.target
 EOS
 
           sudo systemctl daemon-reload
-          sudo systemctl enable edupress --now || sudo systemctl restart edupress
-          sleep 3
-          sudo systemctl status edupress --no-pager || true
-          journalctl -u edupress --no-pager -n 200 || true
+          sudo systemctl enable edupress || true
+          if [ "${PREPARE_ONLY}" = "true" ]; then
+            echo "[Prepare] Skipping service start (no JAR deployment in prepare_only mode)"
+          else
+            if [ -f "$APP_DIR/edupress.jar" ]; then
+              sudo systemctl restart edupress || sudo systemctl start edupress
+              sleep 3
+              sudo systemctl status edupress --no-pager || true
+              journalctl -u edupress --no-pager -n 200 || true
+            else
+              echo "[Deploy] No JAR found at $APP_DIR/edupress.jar to start service" >&2
+            fi
+          fi
           EOF
 
       - name: Health check (port)
         shell: bash
+        if: ${{ github.event.inputs.prepare_only != 'true' }}
         run: |
           set -e
           echo "Checking http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}"
