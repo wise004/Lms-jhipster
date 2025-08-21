@@ -1,0 +1,127 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    env:
+      EC2_HOST: ${{ vars.EC2_HOST }}
+      EC2_USER: ${{ vars.EC2_USER }}
+      SERVER_PORT: ${{ vars.SERVER_PORT || '8080' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (for build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build with Maven
+        id: build
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./mvnw || true
+          ./mvnw -ntp -B -DskipTests package
+          JAR_PATH=$(ls -1 target/*.jar | grep -v sources | grep -v original | head -n1)
+          echo "jar_path=$JAR_PATH" >> "$GITHUB_OUTPUT"
+          echo "Built: $JAR_PATH"
+
+      - name: Prepare SSH key
+        shell: bash
+        run: |
+          umask 077
+          echo "${{ secrets.EC2_SSH_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+
+      - name: Copy JAR to EC2 (~/app/edupress.jar)
+        shell: bash
+        run: |
+          JAR="${{ steps.build.outputs.jar_path }}"
+          if [ -z "$JAR" ]; then echo "Missing jar path" >&2; exit 1; fi
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p ~/app"
+          scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"
+
+      - name: Configure Java, env, and systemd; restart service
+        shell: bash
+        run: |
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
+          set -e
+          APP_DIR="$HOME/app"
+          mkdir -p "$APP_DIR"
+
+          # Install Java 21 if missing (supports Ubuntu/Debian, Amazon Linux, RHEL/CentOS)
+          if ! command -v java >/dev/null 2>&1; then
+            if command -v apt-get >/dev/null 2>&1; then
+              sudo apt-get update -y
+              sudo apt-get install -y openjdk-21-jdk || sudo apt-get install -y openjdk-21-jre
+            elif command -v dnf >/dev/null 2>&1; then
+              sudo dnf -y install java-21-amazon-corretto || sudo dnf -y install java-21-openjdk
+            elif command -v yum >/dev/null 2>&1; then
+              sudo yum -y install java-21-amazon-corretto || sudo yum -y install java-21-openjdk
+            else
+              echo "Unsupported package manager; install Java 21 manually" >&2
+              exit 1
+            fi
+          fi
+
+          # Write environment file
+          cat > "$APP_DIR/edupress.env" << EOV
+          SPRING_PROFILES_ACTIVE=prod
+          SERVER_PORT=${{ env.SERVER_PORT }}
+          SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
+          SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=${{ secrets.JWT_BASE64_SECRET }}
+          EOV
+
+          # Create systemd unit (requires sudo)
+          SVC=/etc/systemd/system/edupress.service
+          sudo bash -c "cat > $SVC" << EOS
+          [Unit]
+          Description=Edupress Spring Boot Application
+          After=network.target
+
+          [Service]
+          Type=simple
+          WorkingDirectory=%h/app
+          EnvironmentFile=%h/app/edupress.env
+          ExecStart=/usr/bin/env bash -c 'set -a; source %h/app/edupress.env; exec java -jar %h/app/edupress.jar'
+          Restart=always
+          RestartSec=5
+          User=${{ env.EC2_USER }}
+
+          [Install]
+          WantedBy=multi-user.target
+          EOS
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable edupress --now || sudo systemctl restart edupress
+          sleep 3
+          sudo systemctl status edupress --no-pager || true
+          journalctl -u edupress --no-pager -n 200 || true
+          EOF
+
+      - name: Health check (port)
+        shell: bash
+        run: |
+          set -e
+          echo "Checking http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}"
+          for i in {1..20}; do
+            if curl -fsS --max-time 3 "http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}" >/dev/null; then
+              echo "App is reachable"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "App not reachable after timeouts" >&2
+          exit 1
