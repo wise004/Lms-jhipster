@@ -133,6 +133,25 @@ jobs:
             if ! command -v java >/dev/null 2>&1 && command -v yum >/dev/null 2>&1; then
               sudo yum install -y java-21-openjdk-headless || sudo yum install -y java-17-openjdk-headless || sudo yum install -y java-11-openjdk-headless || true
             fi
+            # Last-resort: download Corretto tarball and link /usr/bin/java
+            if ! command -v java >/dev/null 2>&1; then
+              ARCH=$(uname -m)
+              if [ "$ARCH" = "x86_64" ] || [ "$ARCH" = "amd64" ]; then
+                URL="https://corretto.aws/downloads/latest/amazon-corretto-21-x64-linux-jdk.tar.gz"
+              else
+                URL="https://corretto.aws/downloads/latest/amazon-corretto-21-aarch64-linux-jdk.tar.gz"
+              fi
+              TMP_TGZ=$(mktemp /tmp/corretto.XXXXXX.tgz)
+              curl -fL "$URL" -o "$TMP_TGZ"
+              sudo mkdir -p /opt
+              sudo tar -C /opt -xzf "$TMP_TGZ"
+              DIR=$(sudo find /opt -maxdepth 1 -type d -name 'amazon-corretto-21*' | head -n1)
+              if [ -n "$DIR" ]; then
+                sudo ln -sfn "$DIR" /opt/corretto-21
+                sudo ln -sfn /opt/corretto-21/bin/java /usr/bin/java
+              fi
+              rm -f "$TMP_TGZ"
+            fi
             if ! command -v java >/dev/null 2>&1; then
               echo "Java installation failed" >&2
               exit 1
