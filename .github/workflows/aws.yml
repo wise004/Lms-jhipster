@@ -56,11 +56,11 @@ jobs:
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p ~/app"
           scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"
 
-  - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
+      - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
         shell: bash
         run: |
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" \
-    "LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
+            "LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
           set -e
           APP_DIR="$HOME/app"
           mkdir -p "$APP_DIR"
