@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to AWS EC2 (systemd)
 
 on:
   workflow_dispatch:
@@ -21,6 +21,10 @@ jobs:
       DB_NAME: ${{ vars.DB_NAME || 'edupress' }}
       DB_USERNAME: ${{ vars.DB_USERNAME || 'edupress' }}
     steps:
+      - name: Workflow banner
+        shell: bash
+        run: |
+          echo "[Deploy Workflow] version=v2 systemd-corretto; commit=${GITHUB_SHA}"
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -90,7 +94,8 @@ jobs:
               sudo yum clean all || true
               sudo yum makecache || true
               sudo yum -y install java-21-amazon-corretto-headless || sudo yum -y install java-21-amazon-corretto || \
-              sudo yum -y install java-21-openjdk-headless || sudo yum -y install java-17-openjdk-headless || true
+              sudo yum -y install java-21-openjdk-headless || sudo yum -y install java-21-openjdk || \
+              sudo yum -y install java-17-openjdk-headless || sudo yum -y install java-17-openjdk || true
             fi
             # Last-resort: download Corretto tarball and symlink java
             if ! command -v java >/dev/null 2>&1; then
