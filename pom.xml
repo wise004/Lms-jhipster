@@ -302,6 +302,27 @@
         </dependency>
     </dependencies>
 
+    <!--
+        Resolve dependency convergence errors observed in CI by pinning
+        transitive versions brought by Liquibase and Jackson modules.
+        - javax.xml.bind:jaxb-api appears as 2.2.12 and 2.3.1; align to 2.3.1
+        - org.apache.commons:commons-text appears as 1.11.0 and 1.12.0; align to 1.12.0
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.12.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
         <resources>
