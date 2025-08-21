@@ -3,9 +3,11 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: ['**']
+    branches:
+      - '**'
   pull_request:
-    branches: ['**']
+    branches:
+      - '**'
 
 permissions:
   contents: read
@@ -33,7 +35,7 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-          cache: 'maven'
+          cache: maven
 
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
@@ -45,9 +47,8 @@ jobs:
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
-          name: app-jar
-          path: |
-            target/*.jar
+          name: app-jar-${{ github.run_id }}
+          path: target/*.jar
           if-no-files-found: error
 
       - name: Upload test reports on failure
@@ -62,8 +63,8 @@ jobs:
   package-jar:
     name: Package JAR (skip tests)
     runs-on: ubuntu-latest
-    # Always run so artifact is produced even if tests fail
-    if: ${{ always() }}
+    needs: build
+    if: ${{ needs.build.result != 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,7 +74,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: 'maven'
+          cache: maven
 
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
@@ -84,7 +85,6 @@ jobs:
       - name: Upload application JAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-jar
-          path: |
-            target/*.jar
+          name: app-jar-${{ github.run_id }}-fallback
+          path: target/*.jar
           if-no-files-found: error
