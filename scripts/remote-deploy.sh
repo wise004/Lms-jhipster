@@ -173,6 +173,10 @@ if [ -f "$APP_DIR/edupress.jar" ]; then
     sudo journalctl -n 120 -u edupress --no-pager || true
     exit 1
   fi
+  echo "[Remote] Service active; checking listening ports for java"
+  (ss -ltnp 2>/dev/null | grep java) || (netstat -tlnp 2>/dev/null | grep java) || true
+  echo "[Remote] Curling local liveness endpoint: $HEALTH_URL"
+  curl -fsS --max-time 2 "$HEALTH_URL" || true
 else
   echo "[Remote] Missing JAR $APP_DIR/edupress.jar" >&2
   exit 1
