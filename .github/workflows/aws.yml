@@ -44,6 +44,13 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch != '' }}
         with:
           ref: ${{ github.event.inputs.branch }}
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
       - name: Set up Java 21 (for build)
         uses: actions/setup-java@v4
         with:
@@ -77,12 +84,11 @@ jobs:
           if [ -z "$JAR" ]; then echo "Missing jar path" >&2; exit 1; fi
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p ~/app"
           scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"
-
-  - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
+      - name: Configure Java, optional local PostgreSQL, env, and systemd; restart service
         shell: bash
         run: |
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" \
-    "PREPARE_ONLY='${{ github.event.inputs.prepare_only }}' LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
+          "PREPARE_ONLY='${{ github.event.inputs.prepare_only }}' LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash -s" << 'EOF'
           set -e
           APP_DIR="$HOME/app"
           mkdir -p "$APP_DIR"
