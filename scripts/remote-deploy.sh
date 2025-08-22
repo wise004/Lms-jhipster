@@ -86,7 +86,8 @@ provision_pg() {
 
 write_env() {
   local ds="$DB_URL"; if [ "$LOCAL_DB" = "true" ] || [ -z "$ds" ]; then ds="jdbc:postgresql://localhost:5432/${DB_NAME}?sslmode=disable"; fi
-  cat > "$APP_DIR/edupress.env" <<ENV
+  local env_file="$APP_DIR/edupress.env"
+  cat > "$env_file" <<ENV
 SPRING_PROFILES_ACTIVE=prod
 SERVER_PORT=${SERVER_PORT}
 SPRING_DATASOURCE_URL=${ds}
@@ -94,25 +95,35 @@ SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
 SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
 JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=${JWT_BASE64_SECRET}
 ENV
+  sudo chown root:root "$env_file" || true
+  sudo chmod 644 "$env_file" || true
+  echo "[Remote] Env file created: $env_file"
+  ls -l "$env_file" || true
 }
 
 write_service() {
   local svc=/etc/systemd/system/edupress.service
   local afterLine="After=network.target"
+  local requiresLine=""
   if [ "$LOCAL_DB" = "true" ] && [ -n "$ACTIVE_SVC" ]; then
-    afterLine="After=network.target $ACTIVE_SVC"
+    local svc_name="$ACTIVE_SVC"; case $svc_name in *.service) ;; *) svc_name="$svc_name.service";; esac
+    afterLine="After=network.target $svc_name"
+    requiresLine="Requires=$svc_name"
   fi
+  local jar_path="$APP_DIR/edupress.jar"
+  local env_file="$APP_DIR/edupress.env"
   sudo bash -c "cat > $svc" <<UNIT
 [Unit]
 Description=Edupress Spring Boot Application
 $afterLine
+$requiresLine
 Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=%h/app
-EnvironmentFile=%h/app/edupress.env
-ExecStart=/usr/bin/env bash -c 'set -a; source %h/app/edupress.env; exec java -jar %h/app/edupress.jar'
+WorkingDirectory=$APP_DIR
+EnvironmentFile=$env_file
+ExecStart=/usr/bin/java -jar $jar_path
 Restart=always
 RestartSec=5
 User=$CURRENT_USER
@@ -123,6 +134,8 @@ WantedBy=multi-user.target
 UNIT
   sudo systemctl daemon-reload
   sudo systemctl enable edupress || true
+  echo "[Remote] Service unit installed (After/Requires lines):"
+  grep -E '^(After|Requires|EnvironmentFile|ExecStart)' "$svc" || true
 }
 
 ensure_java
