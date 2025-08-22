@@ -190,6 +190,22 @@ if [ "$PREPARE_ONLY" = "true" ]; then
 fi
 
 if [ -f "$APP_DIR/edupress.jar" ]; then
+  # If using local DB ensure the application credentials actually work; if not, repair password.
+  if [ "$LOCAL_DB" = "true" ]; then
+    if ! PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -h 127.0.0.1 -d "$DB_NAME" -c "select 1" >/dev/null 2>&1; then
+      echo "[DB] Credential test failed for $DB_USERNAME@$DB_NAME. Resetting password to provided secret."
+      sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';" || echo "[DB] ALTER USER failed" >&2
+      # retry test
+      if PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -h 127.0.0.1 -d "$DB_NAME" -c "select 1" >/dev/null 2>&1; then
+        echo "[DB] Credential test passed after reset."
+      else
+        echo "[DB] Credential test still failing after reset (will likely cause app startup failure)." >&2
+      fi
+    else
+      echo "[DB] Credential test passed for $DB_USERNAME before app start."
+    fi
+  fi
+
   echo "[Remote] Starting (or restarting) edupress.service (port $SERVER_PORT)"
   if ! sudo systemctl restart edupress 2>/dev/null; then sudo systemctl start edupress || true; fi
   # Wait up to 90s for health endpoint
