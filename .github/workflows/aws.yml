@@ -197,35 +197,19 @@ jobs:
             DS_URL="jdbc:postgresql://localhost:5432/${DB_NAME}?sslmode=disable"
           fi
 
-          # Write environment file
-          cat > "$APP_DIR/edupress.env" << EOV
-SPRING_PROFILES_ACTIVE=prod
-SERVER_PORT=${SERVER_PORT}
-SPRING_DATASOURCE_URL=${DS_URL}
-SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=${JWT_BASE64_SECRET}
-EOV
+          # Write environment file (avoid heredoc to keep YAML valid)
+          printf "%s\n" \
+            "SPRING_PROFILES_ACTIVE=prod" \
+            "SERVER_PORT=${SERVER_PORT}" \
+            "SPRING_DATASOURCE_URL=${DS_URL}" \
+            "SPRING_DATASOURCE_USERNAME=${DB_USERNAME}" \
+            "SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}" \
+            "JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=${JWT_BASE64_SECRET}" \
+            > "$APP_DIR/edupress.env"
 
-          # Create systemd unit (requires sudo)
+          # Create systemd unit (requires sudo) without heredoc
           SVC=/etc/systemd/system/edupress.service
-          sudo bash -c "cat > $SVC" << EOS
-[Unit]
-Description=Edupress Spring Boot Application
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=%h/app
-EnvironmentFile=%h/app/edupress.env
-ExecStart=/usr/bin/env bash -c 'set -a; source %h/app/edupress.env; exec java -jar %h/app/edupress.jar'
-Restart=always
-RestartSec=5
-User=${USER}
-
-[Install]
-WantedBy=multi-user.target
-EOS
+          sudo bash -c 'cat > '"$SVC"' <<__UNIT__\n[Unit]\nDescription=Edupress Spring Boot Application\nAfter=network.target\n\n[Service]\nType=simple\nWorkingDirectory=%h/app\nEnvironmentFile=%h/app/edupress.env\nExecStart=/usr/bin/env bash -c '\''set -a; source %h/app/edupress.env; exec java -jar %h/app/edupress.jar'\''\nRestart=always\nRestartSec=5\nUser='"$USER"'\n\n[Install]\nWantedBy=multi-user.target\n__UNIT__'
 
           sudo systemctl daemon-reload
           sudo systemctl enable edupress || true
@@ -241,7 +225,7 @@ EOS
               echo "[Deploy] No JAR found at $APP_DIR/edupress.jar to start service" >&2
             fi
           fi
-          EOF
+          # End remote script
 
       - name: Health check (port)
         shell: bash
