@@ -170,6 +170,13 @@ UNIT
 }
 
 ensure_java
+# Auto-detect local DB need: if not explicitly true but DB_URL empty or points to localhost
+if [ "$LOCAL_DB" != "true" ]; then
+  if [ -z "${DB_URL}" ] || echo "$DB_URL" | grep -qiE '^jdbc:postgresql://(localhost|127\.0\.0\.1)'; then
+    echo "[DB] LOCAL_DB auto-enabled (detected local jdbc url / empty DB_URL)"
+    LOCAL_DB=true
+  fi
+fi
 [ "$LOCAL_DB" = "true" ] && provision_pg || true
 write_env
 write_service
@@ -191,7 +198,10 @@ fi
 
 if [ -f "$APP_DIR/edupress.jar" ]; then
   # If using local DB ensure the application credentials actually work; if not, repair password.
-  if [ "$LOCAL_DB" = "true" ]; then
+  # Determine if datasource is local
+  DS_LOCAL=false
+  if echo "${DB_URL}" | grep -qiE '^jdbc:postgresql://(localhost|127\.0\.0\.1)' || [ -z "${DB_URL}" ]; then DS_LOCAL=true; fi
+  if [ "$LOCAL_DB" = "true" ] || [ "$DS_LOCAL" = "true" ]; then
     if ! PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -h 127.0.0.1 -d "$DB_NAME" -c "select 1" >/dev/null 2>&1; then
       echo "[DB] Credential test failed for $DB_USERNAME@$DB_NAME. Resetting password to provided secret."
       sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';" || echo "[DB] ALTER USER failed" >&2
