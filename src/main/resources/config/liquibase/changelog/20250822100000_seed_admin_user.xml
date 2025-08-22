@@ -24,4 +24,11 @@
             <column name="is_active" valueBoolean="true"/>
         </insert>
     </changeSet>
+    </changeSet>
+        <changeSet id="20250822100001-bump-sequence-after-admin" author="copilot">
+            <preConditions onFail="MARK_RAN">
+                <sqlCheck expectedResult="0">select case when (select last_value from sequence_generator) >= 9050 then 1 else 0 end</sqlCheck>
+            </preConditions>
+            <sql>select setval('sequence_generator',9050);</sql>
+        </changeSet>
 </databaseChangeLog>
