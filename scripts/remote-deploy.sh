@@ -31,6 +31,11 @@ if [ -z "$DB_PASSWORD" ]; then
 fi
 echo "[Secret] DB password length=${#DB_PASSWORD} (value hidden)"
 
+escape_sql_literal() {
+  # Escape single quotes for SQL literal
+  printf "%s" "$1" | sed "s/'/''/g"
+}
+
 ensure_java() {
   if command -v java >/dev/null 2>&1; then
     return 0
@@ -103,10 +108,10 @@ provision_pg() {
     done
   fi
 
-  sudo -iu postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='${DB_USERNAME}'" | grep -q 1 || sudo -iu postgres psql -c "CREATE USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';"
+  sudo -iu postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='${DB_USERNAME}'" | grep -q 1 || sudo -iu postgres psql -c "CREATE USER ${DB_USERNAME} WITH PASSWORD '$(escape_sql_literal "$DB_PASSWORD")';"
   sudo -iu postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" | grep -q 1 || sudo -iu postgres psql -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USERNAME};"
   # Always ensure password in case user existed without one
-  sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';" >/dev/null 2>&1 || true
+  sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '$(escape_sql_literal "$DB_PASSWORD")';" >/dev/null 2>&1 || true
 
   # Ensure pg_hba.conf allows password (md5) auth for local connections and our user
   local hba=""
@@ -227,7 +232,7 @@ if [ -f "$APP_DIR/edupress.jar" ]; then
   if [ "$LOCAL_DB" = "true" ] || [ "$DS_LOCAL" = "true" ]; then
     if ! PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -h 127.0.0.1 -d "$DB_NAME" -c "select 1" >/dev/null 2>&1; then
       echo "[DB] Credential test failed for $DB_USERNAME@$DB_NAME. Resetting password to provided secret."
-      sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';" || echo "[DB] ALTER USER failed" >&2
+  sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '$(escape_sql_literal "$DB_PASSWORD")';" || echo "[DB] ALTER USER failed" >&2
       # retry test
       if PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -h 127.0.0.1 -d "$DB_NAME" -c "select 1" >/dev/null 2>&1; then
         echo "[DB] Credential test passed after reset."
