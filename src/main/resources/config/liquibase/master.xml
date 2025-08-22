@@ -35,7 +35,6 @@
     <include file="config/liquibase/changelog/20250815103535_added_entity_BlogPost.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20250817120000_add_password_to_app_user.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20250822100000_seed_admin_user.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250815103525_added_entity_constraints_Course.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250815103526_added_entity_constraints_Lesson.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250815103527_added_entity_constraints_Quiz.xml" relativeToChangelogFile="false"/>
