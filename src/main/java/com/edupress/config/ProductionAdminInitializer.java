@@ -27,6 +27,9 @@ public class ProductionAdminInitializer {
     @Value("${ADMIN_PASSWORD:ChangeMe123!}")
     private String adminPassword;
 
+    @Value("${ADMIN_SEED_ENABLED:true}")
+    private boolean seedEnabled;
+
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -37,22 +40,34 @@ public class ProductionAdminInitializer {
 
     @PostConstruct
     public void seedAdmin() {
-        String emailLower = adminEmail.toLowerCase();
-        appUserRepository
-            .findOneByEmail(emailLower)
-            .ifPresentOrElse(
-                u -> LOG.info("[ProdSeed] Admin user already exists: {}", emailLower),
-                () -> {
-                    AppUser admin = new AppUser();
-                    admin.setEmail(emailLower);
-                    admin.setFirstName("Prod");
-                    admin.setLastName("Admin");
-                    admin.setPassword(passwordEncoder.encode(adminPassword));
-                    admin.setRole(Role.ADMIN);
-                    admin.setIsActive(true);
-                    appUserRepository.save(admin);
-                    LOG.warn("[ProdSeed] Created initial admin {} with default password. CHANGE IT IMMEDIATELY.", emailLower);
-                }
+        if (!seedEnabled) {
+            LOG.info("[ProdSeed] Seeding disabled via ADMIN_SEED_ENABLED=false");
+            return;
+        }
+        try {
+            String emailLower = adminEmail.toLowerCase();
+            appUserRepository
+                .findOneByEmail(emailLower)
+                .ifPresentOrElse(
+                    u -> LOG.info("[ProdSeed] Admin user already exists: {}", emailLower),
+                    () -> {
+                        AppUser admin = new AppUser();
+                        admin.setEmail(emailLower);
+                        admin.setFirstName("Prod");
+                        admin.setLastName("Admin");
+                        admin.setPassword(passwordEncoder.encode(adminPassword));
+                        admin.setRole(Role.ADMIN);
+                        admin.setIsActive(true);
+                        appUserRepository.save(admin);
+                        LOG.warn("[ProdSeed] Created initial admin {} with default password. CHANGE IT IMMEDIATELY.", emailLower);
+                    }
+                );
+        } catch (Exception e) {
+            LOG.error(
+                "[ProdSeed] Admin seeding failed but application will continue. Set ADMIN_SEED_ENABLED=false to silence. Cause: {}",
+                e.getMessage(),
+                e
             );
+        }
     }
 }
