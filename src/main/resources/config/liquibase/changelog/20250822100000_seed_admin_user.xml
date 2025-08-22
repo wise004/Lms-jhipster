@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20250822100000-seed-admin-app-user" author="copilot">
+        <preConditions onFail="MARK_RAN">
+            <!-- Only insert if email not present -->
+            <not>
+                <sqlCheck expectedResult="1">select count(1) from app_user where email='admin@edupress.io'</sqlCheck>
+            </not>
+        </preConditions>
+        <!-- Password: Admin123! (bcrypt) -->
+        <insert tableName="app_user">
+            <column name="id" valueNumeric="9000"/>
+            <column name="role" value="ADMIN"/>
+            <column name="first_name" value="Prod"/>
+            <column name="last_name" value="Admin"/>
+            <column name="email" value="admin@edupress.io"/>
+            <column name="password_hash" value="$2a$10$JspJZrVZMHzV6HxGHE9rU.OcHrwFE0YpB/qT9rcQO9yQsKf7Dnu4q"/>
+            <column name="phone" value=""/>
+            <column name="bio" value="Seeded production administrator"/>
+            <column name="profile_picture_url" value=""/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

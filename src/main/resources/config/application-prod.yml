@@ -33,9 +33,10 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/Edupress
-    username: Edupress
-    password:
+    # External managed Postgres (override with env vars if provided)
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://pg-2ae5c154-jhipster16-e590.b.aivencloud.com:26260/defaultdb?sslmode=require}
+    username: ${JDBC_DATABASE_USERNAME:avnadmin}
+    password: ${JDBC_DATABASE_PASSWORD:change-me}
     hikari:
       poolName: Hikari
       auto-commit: false
