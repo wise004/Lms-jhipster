@@ -9,6 +9,28 @@ ACTIVE_SVC=""
 
 echo "[Remote] deploy start prepare_only=$PREPARE_ONLY local_db=$LOCAL_DB"
 
+# Decode base64 password if provided via DB_PASSWORD_B64 (to avoid shell quoting issues in workflow)
+if [ -n "${DB_PASSWORD_B64:-}" ]; then
+  if command -v base64 >/dev/null 2>&1; then
+    set +e
+    decoded=$(echo "$DB_PASSWORD_B64" | base64 -d 2>/dev/null)
+    rc=$?
+    set -e
+    if [ $rc -eq 0 ] && [ -n "$decoded" ]; then
+      DB_PASSWORD="$decoded"
+      echo "[Secret] DB password decoded from base64 (length=${#DB_PASSWORD})"
+    else
+      echo "[Secret] Failed to base64-decode DB_PASSWORD_B64; falling back to literal" >&2
+    fi
+  fi
+fi
+
+if [ -z "$DB_PASSWORD" ]; then
+  echo "[Secret] ERROR: DB_PASSWORD is empty. Aborting before provisioning." >&2
+  exit 1
+fi
+echo "[Secret] DB password length=${#DB_PASSWORD} (value hidden)"
+
 ensure_java() {
   if command -v java >/dev/null 2>&1; then
     return 0
@@ -109,6 +131,7 @@ provision_pg() {
       sudo sed -i "1ilocal   ${DB_NAME}   ${DB_USERNAME}                             md5" "$hba"
     fi
     sudo systemctl reload "$ACTIVE_SVC" 2>/dev/null || sudo systemctl restart "$ACTIVE_SVC" || true
+  echo "[DB] pg_hba.conf (first 25 lines)"; sudo head -n 25 "$hba" || true
   else
     echo "[DB] Could not locate pg_hba.conf to adjust authentication" >&2
   fi
