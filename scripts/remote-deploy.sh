@@ -83,6 +83,8 @@ provision_pg() {
 
   sudo -iu postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='${DB_USERNAME}'" | grep -q 1 || sudo -iu postgres psql -c "CREATE USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';"
   sudo -iu postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" | grep -q 1 || sudo -iu postgres psql -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USERNAME};"
+  # Always ensure password in case user existed without one
+  sudo -iu postgres psql -c "ALTER USER ${DB_USERNAME} WITH PASSWORD '${DB_PASSWORD}';" >/dev/null 2>&1 || true
 
   # Ensure pg_hba.conf allows password (md5) auth for local connections and our user
   local hba=""
@@ -90,20 +92,23 @@ provision_pg() {
     if sudo test -f "$c"; then hba="$c"; break; fi
   done
   if [ -n "$hba" ]; then
-    if ! sudo grep -q "${DB_USERNAME}.*md5" "$hba" 2>/dev/null; then
-      echo "[DB] Updating $hba to enforce md5 password auth"
-      sudo cp "$hba" "$hba.bak" || true
-      sudo bash -c "cat >> '$hba'" <<HBA
-# Added by deploy script to ensure password auth for application user
-host    ${DB_NAME}    ${DB_USERNAME}    127.0.0.1/32    md5
-host    ${DB_NAME}    ${DB_USERNAME}    ::1/128         md5
-host    all          all               127.0.0.1/32    md5
-host    all          all               ::1/128         md5
-HBA
-      sudo systemctl reload "$ACTIVE_SVC" 2>/dev/null || sudo systemctl restart "$ACTIVE_SVC" || true
-    else
-      echo "[DB] pg_hba.conf already contains md5 entry for ${DB_USERNAME}"
+    echo "[DB] Adjusting authentication in $hba (ident/peer -> md5)"
+    sudo cp "$hba" "$hba.bak" || true
+    # Replace ident/peer for local/host lines with md5 (non-destructive backup above)
+    sudo sed -i -E "s/^(local[[:space:]].*[[:space:]]+)(ident|peer)\\s*$/\\1md5/Ig" "$hba"
+    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]127\.0\.0\.1\/32[[:space:]]+)(ident|peer)/\\1md5/I" "$hba"
+    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]::1\/128[[:space:]]+)(ident|peer)/\\1md5/I" "$hba"
+    # Ensure explicit entries for app user at top if not present
+    if ! sudo grep -q "host *${DB_NAME} *${DB_USERNAME} *127.0.0.1/32" "$hba"; then
+      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    127.0.0.1/32    md5" "$hba"
     fi
+    if ! sudo grep -q "host *${DB_NAME} *${DB_USERNAME} *::1/128" "$hba"; then
+      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    ::1/128         md5" "$hba"
+    fi
+    if ! sudo grep -q "^local[[:space:]]+${DB_NAME}[[:space:]]+${DB_USERNAME}" "$hba"; then
+      sudo sed -i "1ilocal   ${DB_NAME}   ${DB_USERNAME}                             md5" "$hba"
+    fi
+    sudo systemctl reload "$ACTIVE_SVC" 2>/dev/null || sudo systemctl restart "$ACTIVE_SVC" || true
   else
     echo "[DB] Could not locate pg_hba.conf to adjust authentication" >&2
   fi
@@ -168,6 +173,16 @@ ensure_java
 [ "$LOCAL_DB" = "true" ] && provision_pg || true
 write_env
 write_service
+
+# Show pg_hba.conf snippet for diagnostics after potential modification
+if [ "$LOCAL_DB" = "true" ]; then
+  for h in /var/lib/pgsql/data/pg_hba.conf /var/lib/pgsql/16/data/pg_hba.conf /var/lib/pgsql/15/data/pg_hba.conf; do
+    if sudo test -f "$h"; then
+      echo "[DB] Showing first 60 lines of $h"; sudo head -n 60 "$h" || true
+      break
+    fi
+  done
+fi
 
 if [ "$PREPARE_ONLY" = "true" ]; then
   echo "[Remote] prepare_only done"
