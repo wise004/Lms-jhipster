@@ -185,7 +185,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=$APP_DIR
 EnvironmentFile=$env_file
-ExecStart=/usr/bin/java -jar $jar_path
+ExecStart=/usr/bin/java -jar $jar_path --server.port=${SERVER_PORT}
 Restart=always
 RestartSec=5
 User=$CURRENT_USER
