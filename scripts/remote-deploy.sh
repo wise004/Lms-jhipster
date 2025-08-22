@@ -54,19 +54,20 @@ provision_pg() {
   [ -d /var/lib/pgsql/16/data ] && DATA_DIR="/var/lib/pgsql/16/data"
   [ -d /var/lib/pgsql/15/data ] && DATA_DIR="/var/lib/pgsql/15/data"
 
-  # Initialize only if PG_VERSION missing and directory empty
+  # Initialize only if PG_VERSION missing AND directory truly empty (checked with sudo)
   if command -v postgresql-setup >/dev/null 2>&1; then
-    if [ ! -f "$DATA_DIR/PG_VERSION" ]; then
-      if find "$DATA_DIR" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
-        echo "[DB] Data directory not empty & no PG_VERSION -> assuming pre-existing / partial install; skipping initdb"
+    if [ -f "$DATA_DIR/PG_VERSION" ]; then
+      echo "[DB] Existing PG cluster detected (PG_VERSION present)"
+    else
+      # capture listing (ignore permission errors by using sudo)
+      if sudo sh -c "ls -A '$DATA_DIR'" 2>/dev/null | grep -q .; then
+        echo "[DB] Data dir not empty and no PG_VERSION -> skipping initdb (no destructive action)"
       else
         echo "[DB] Running postgresql-setup initdb (fresh)"
         if ! sudo postgresql-setup --initdb; then
           echo "[DB] postgresql-setup initdb failed" >&2
         fi
       fi
-    else
-      echo "[DB] Existing PG cluster detected (PG_VERSION present)"
     fi
   fi
 
@@ -87,6 +88,8 @@ provision_pg() {
 write_env() {
   local ds="$DB_URL"; if [ "$LOCAL_DB" = "true" ] || [ -z "$ds" ]; then ds="jdbc:postgresql://localhost:5432/${DB_NAME}?sslmode=disable"; fi
   local env_file="$APP_DIR/edupress.env"
+  # If existing env file owned by root make it writable for current user
+  if [ -f "$env_file" ] && [ ! -w "$env_file" ]; then sudo chown "$CURRENT_USER" "$env_file" || true; fi
   cat > "$env_file" <<ENV
 SPRING_PROFILES_ACTIVE=prod
 SERVER_PORT=${SERVER_PORT}
@@ -95,9 +98,8 @@ SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
 SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
 JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=${JWT_BASE64_SECRET}
 ENV
-  sudo chown root:root "$env_file" || true
-  sudo chmod 644 "$env_file" || true
-  echo "[Remote] Env file created: $env_file"
+  chmod 600 "$env_file" || true
+  echo "[Remote] Env file created/updated: $env_file"
   ls -l "$env_file" || true
 }
 
