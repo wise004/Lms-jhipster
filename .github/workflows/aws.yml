@@ -180,10 +180,7 @@ jobs:
             [ -d "$DATA_DIR" ] || DATA_DIR="/var/lib/pgsql/15/data"
             [ -d "$DATA_DIR" ] || DATA_DIR="/var/lib/pgsql/data"
             if [ -d "$DATA_DIR" ]; then
-              sudo bash -c "cat >> '$DATA_DIR/pg_hba.conf'" <<PHBA
-host    all             all             127.0.0.1/32            md5
-host    all             all             ::1/128                 md5
-PHBA
+              sudo bash -c "printf '%s\n' 'host    all    all    127.0.0.1/32    md5' 'host    all    all    ::1/128    md5' >> '$DATA_DIR/pg_hba.conf'"
               sudo systemctl restart "$SVC"
             fi
 
