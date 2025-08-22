@@ -3,7 +3,7 @@ set -euo pipefail
 APP_DIR="$HOME/app"
 mkdir -p "$APP_DIR"
 
-: "${PREPARE_ONLY:=false}" "${LOCAL_DB:=false}" "${DB_NAME:=edupress}" "${DB_USERNAME:=edupress}" "${DB_PASSWORD:=changeme}" "${SERVER_PORT:=8081}" "${DB_URL:=}" "${JWT_BASE64_SECRET:=devsecret}" || true
+: "${PREPARE_ONLY:=false}" "${LOCAL_DB:=false}" "${DB_NAME:=edupress}" "${DB_USERNAME:=edupress}" "${DB_PASSWORD:=changeme}" "${SERVER_PORT:=8080}" "${DB_URL:=}" "${JWT_BASE64_SECRET:=devsecret}" || true
 CURRENT_USER="$(id -un)"
 ACTIVE_SVC=""
 
