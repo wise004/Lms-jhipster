@@ -26,7 +26,7 @@ jobs:
     env:
       EC2_HOST: ${{ vars.EC2_HOST }}
       EC2_USER: ${{ vars.EC2_USER }}
-      SERVER_PORT: ${{ vars.SERVER_PORT || '8081' }}
+  SERVER_PORT: ${{ vars.SERVER_PORT || '8080' }}
       LOCAL_DB: ${{ vars.LOCAL_DB || 'false' }}
       DB_NAME: ${{ vars.DB_NAME || 'edupress' }}
       DB_USERNAME: ${{ vars.DB_USERNAME || 'edupress' }}
@@ -107,14 +107,14 @@ jobs:
              JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' \
              bash ~/app/deploy.sh"
 
-      - name: Health check (port)
+  - name: Health check (management /health)
         shell: bash
         if: ${{ github.event.inputs.prepare_only != 'true' }}
         run: |
           set -e
-          echo "Checking http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}"
+          echo "Checking http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}/management/health/liveness"
           for i in {1..20}; do
-            if curl -fsS --max-time 3 "http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}" >/dev/null; then
+            if curl -fsS --max-time 3 "http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}/management/health/liveness" >/dev/null; then
               echo "App is reachable"
               exit 0
             fi

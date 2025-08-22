@@ -3,7 +3,7 @@ set -euo pipefail
 APP_DIR="$HOME/app"
 mkdir -p "$APP_DIR"
 
-: "${PREPARE_ONLY:=false}" "${LOCAL_DB:=false}" "${DB_NAME:=edupress}" "${DB_USERNAME:=edupress}" "${DB_PASSWORD:=changeme}" "${SERVER_PORT:=8081}" "${DB_URL:=}" "${JWT_BASE64_SECRET:=devsecret}" || true
+: "${PREPARE_ONLY:=false}" "${LOCAL_DB:=false}" "${DB_NAME:=edupress}" "${DB_USERNAME:=edupress}" "${DB_PASSWORD:=changeme}" "${SERVER_PORT:=8080}" "${DB_URL:=}" "${JWT_BASE64_SECRET:=devsecret}" || true
 CURRENT_USER="$(id -un)"
 ACTIVE_SVC=""
 
@@ -149,17 +149,27 @@ if [ "$PREPARE_ONLY" = "true" ]; then
 fi
 
 if [ -f "$APP_DIR/edupress.jar" ]; then
-  echo "[Remote] Starting (or restarting) edupress.service"
+  echo "[Remote] Starting (or restarting) edupress.service (port $SERVER_PORT)"
   if ! sudo systemctl restart edupress 2>/dev/null; then sudo systemctl start edupress || true; fi
-  sleep 3
+  # Wait up to 90s for health endpoint
+  ATTEMPTS=30
+  HEALTH_URL="http://127.0.0.1:${SERVER_PORT}/management/health/liveness"
+  for i in $(seq 1 $ATTEMPTS); do
+    if sudo systemctl is-active --quiet edupress; then
+      if curl -fsS --max-time 2 "$HEALTH_URL" >/dev/null 2>&1; then
+        echo "[Remote] Service healthy (liveness)"
+        break
+      fi
+    else
+      echo "[Remote] Service not active yet (attempt $i)";
+    fi
+    sleep 3
+  done
   if ! sudo systemctl is-active --quiet edupress; then
-    echo "[Remote] Service failed to start. Status:" >&2
+    echo "[Remote] Service failed to reach active state" >&2
     sudo systemctl status edupress --no-pager || true
-    echo "[Remote] Recent journal:" >&2
-    sudo journalctl -n 100 -u edupress --no-pager || true
+    sudo journalctl -n 120 -u edupress --no-pager || true
     exit 1
-  else
-    echo "[Remote] Service active"
   fi
 else
   echo "[Remote] Missing JAR $APP_DIR/edupress.jar" >&2
