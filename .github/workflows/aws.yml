@@ -93,7 +93,16 @@ jobs:
         shell: bash
         run: |
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" \
-            "PREPARE_ONLY='${{ github.event.inputs.prepare_only }}' LOCAL_DB='${{ env.LOCAL_DB }}' DB_NAME='${{ env.DB_NAME }}' DB_USERNAME='${{ env.DB_USERNAME }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' SERVER_PORT='${{ env.SERVER_PORT }}' DB_URL='${{ secrets.DB_URL }}' JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' bash ~/app/deploy.sh"
+            "# Set LOCAL_DB=false in repository variables to skip local Postgres provisioning if an external DB is used
+             PREPARE_ONLY='${{ github.event.inputs.prepare_only || 'false' }}' \
+             LOCAL_DB='${{ env.LOCAL_DB }}' \
+             DB_NAME='${{ env.DB_NAME }}' \
+             DB_USERNAME='${{ env.DB_USERNAME }}' \
+             DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+             SERVER_PORT='${{ env.SERVER_PORT }}' \
+             DB_URL='${{ secrets.DB_URL }}' \
+             JWT_BASE64_SECRET='${{ secrets.JWT_BASE64_SECRET }}' \
+             bash ~/app/deploy.sh"
 
       - name: Health check (port)
         shell: bash
