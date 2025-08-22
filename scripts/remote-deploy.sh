@@ -119,21 +119,24 @@ provision_pg() {
     if sudo test -f "$c"; then hba="$c"; break; fi
   done
   if [ -n "$hba" ]; then
-    echo "[DB] Adjusting authentication in $hba (ident/peer -> md5)"
+    # Detect preferred auth method based on server password_encryption (scram-sha-256 or md5)
+    AUTH_METHOD="md5"
+    if sudo -iu postgres psql -Atqc "SHOW password_encryption;" 2>/dev/null | grep -qi 'scram'; then AUTH_METHOD="scram-sha-256"; fi
+    echo "[DB] Adjusting authentication in $hba (ident/peer -> $AUTH_METHOD)"
     sudo cp "$hba" "$hba.bak" || true
     # Replace ident/peer for local/host lines with md5 (non-destructive backup above)
-    sudo sed -i -E "s/^(local[[:space:]].*[[:space:]]+)(ident|peer)\\s*$/\\1md5/Ig" "$hba"
-    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]127\.0\.0\.1\/32[[:space:]]+)(ident|peer)/\\1md5/I" "$hba"
-    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]::1\/128[[:space:]]+)(ident|peer)/\\1md5/I" "$hba"
+    sudo sed -i -E "s/^(local[[:space:]].*[[:space:]]+)(ident|peer|md5|scram-sha-256)\s*$/\1$AUTH_METHOD/Ig" "$hba"
+    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]127\.0\.0\.1\/32[[:space:]]+)(ident|peer|md5|scram-sha-256)/\1$AUTH_METHOD/I" "$hba"
+    sudo sed -i -E "s/^(host[[:space:]].*[[:space:]]::1\/128[[:space:]]+)(ident|peer|md5|scram-sha-256)/\1$AUTH_METHOD/I" "$hba"
     # Ensure explicit entries for app user at top if not present
     if ! sudo grep -q "host *${DB_NAME} *${DB_USERNAME} *127.0.0.1/32" "$hba"; then
-      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    127.0.0.1/32    md5" "$hba"
+      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    127.0.0.1/32    $AUTH_METHOD" "$hba"
     fi
     if ! sudo grep -q "host *${DB_NAME} *${DB_USERNAME} *::1/128" "$hba"; then
-      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    ::1/128         md5" "$hba"
+      sudo sed -i "1ihost    ${DB_NAME}    ${DB_USERNAME}    ::1/128         $AUTH_METHOD" "$hba"
     fi
     if ! sudo grep -q "^local[[:space:]]+${DB_NAME}[[:space:]]+${DB_USERNAME}" "$hba"; then
-      sudo sed -i "1ilocal   ${DB_NAME}   ${DB_USERNAME}                             md5" "$hba"
+      sudo sed -i "1ilocal   ${DB_NAME}   ${DB_USERNAME}                             $AUTH_METHOD" "$hba"
     fi
     sudo systemctl reload "$ACTIVE_SVC" 2>/dev/null || sudo systemctl restart "$ACTIVE_SVC" || true
   echo "[DB] pg_hba.conf (first 25 lines)"; sudo head -n 25 "$hba" || true
