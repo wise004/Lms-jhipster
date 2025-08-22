@@ -5,6 +5,7 @@ mkdir -p "$APP_DIR"
 
 : "${PREPARE_ONLY:=false}" "${LOCAL_DB:=false}" "${DB_NAME:=edupress}" "${DB_USERNAME:=edupress}" "${DB_PASSWORD:=changeme}" "${SERVER_PORT:=8081}" "${DB_URL:=}" "${JWT_BASE64_SECRET:=devsecret}" || true
 CURRENT_USER="$(id -un)"
+ACTIVE_SVC=""
 
 echo "[Remote] deploy start prepare_only=$PREPARE_ONLY local_db=$LOCAL_DB"
 
@@ -53,14 +54,16 @@ provision_pg() {
   [ -d /var/lib/pgsql/16/data ] && DATA_DIR="/var/lib/pgsql/16/data"
   [ -d /var/lib/pgsql/15/data ] && DATA_DIR="/var/lib/pgsql/15/data"
 
-  # Initialize only if PG_VERSION missing
+  # Initialize only if PG_VERSION missing and directory empty
   if command -v postgresql-setup >/dev/null 2>&1; then
     if [ ! -f "$DATA_DIR/PG_VERSION" ]; then
-      if [ -d "$DATA_DIR" ] && [ "$(ls -A "$DATA_DIR" 2>/dev/null | wc -l)" -gt 0 ] && [ ! -f "$DATA_DIR/PG_VERSION" ]; then
-        echo "[DB] WARNING: $DATA_DIR not empty and no PG_VERSION; skipping forced init to avoid data loss"
+      if find "$DATA_DIR" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
+        echo "[DB] Data directory not empty & no PG_VERSION -> assuming pre-existing / partial install; skipping initdb"
       else
-        echo "[DB] Running postgresql-setup initdb"
-        sudo postgresql-setup --initdb || true
+        echo "[DB] Running postgresql-setup initdb (fresh)"
+        if ! sudo postgresql-setup --initdb; then
+          echo "[DB] postgresql-setup initdb failed" >&2
+        fi
       fi
     else
       echo "[DB] Existing PG cluster detected (PG_VERSION present)"
@@ -95,10 +98,15 @@ ENV
 
 write_service() {
   local svc=/etc/systemd/system/edupress.service
+  local afterLine="After=network.target"
+  if [ "$LOCAL_DB" = "true" ] && [ -n "$ACTIVE_SVC" ]; then
+    afterLine="After=network.target $ACTIVE_SVC"
+  fi
   sudo bash -c "cat > $svc" <<UNIT
 [Unit]
 Description=Edupress Spring Boot Application
-After=network.target
+$afterLine
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -108,6 +116,7 @@ ExecStart=/usr/bin/env bash -c 'set -a; source %h/app/edupress.env; exec java -j
 Restart=always
 RestartSec=5
 User=$CURRENT_USER
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
@@ -127,9 +136,18 @@ if [ "$PREPARE_ONLY" = "true" ]; then
 fi
 
 if [ -f "$APP_DIR/edupress.jar" ]; then
-  sudo systemctl restart edupress || sudo systemctl start edupress
-  sleep 2
-  sudo systemctl status edupress --no-pager || true
+  echo "[Remote] Starting (or restarting) edupress.service"
+  if ! sudo systemctl restart edupress 2>/dev/null; then sudo systemctl start edupress || true; fi
+  sleep 3
+  if ! sudo systemctl is-active --quiet edupress; then
+    echo "[Remote] Service failed to start. Status:" >&2
+    sudo systemctl status edupress --no-pager || true
+    echo "[Remote] Recent journal:" >&2
+    sudo journalctl -n 100 -u edupress --no-pager || true
+    exit 1
+  else
+    echo "[Remote] Service active"
+  fi
 else
   echo "[Remote] Missing JAR $APP_DIR/edupress.jar" >&2
   exit 1

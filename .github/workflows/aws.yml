@@ -83,7 +83,10 @@ jobs:
           JAR="${{ steps.build.outputs.jar_path }}"
           if [ -z "$JAR" ]; then echo "Missing jar path" >&2; exit 1; fi
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p ~/app"
-          scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"
+          echo "Local JAR sha256:" $(sha256sum "$JAR" | awk '{print $1}')
+          if ! scp -i ssh_key.pem -o StrictHostKeyChecking=no "$JAR" "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:~/app/edupress.jar"; then
+            echo "SCP failed" >&2; exit 1; fi
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "echo -n 'Remote JAR sha256: '; sha256sum ~/app/edupress.jar | awk '{print \$1}'"
       - name: Upload remote deploy script
         shell: bash
         run: |
