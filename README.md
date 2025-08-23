@@ -258,3 +258,77 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [Jest]: https://jestjs.io
 [Leaflet]: https://leafletjs.com/
 [DefinitelyTyped]: https://definitelytyped.org/
+
+## Production Domain & Reverse Proxy Setup (edupress.net.uz)
+
+Steps to expose the application at `edupress.net.uz` with HTTPS via Nginx + Let's Encrypt (summary):
+
+1. Allocate Elastic IP in AWS and associate to your EC2 so the public IP is stable.
+2. DNS (at your registrar/ahost):
+
+- A record: `@` -> ELASTIC_IP
+- (Optional) CNAME: `www` -> `edupress.net.uz`
+- TTL 300. Wait for propagation (ping or `dig edupress.net.uz`).
+
+3. Security Group inbound rules: allow 80 (HTTP) and 443 (HTTPS). Remove public 8080 after Nginx works.
+4. Install Nginx on EC2:
+
+```bash
+sudo dnf install -y nginx || sudo yum install -y nginx || sudo apt-get update && sudo apt-get install -y nginx
+sudo systemctl enable --now nginx
+```
+
+5. Create `/etc/nginx/conf.d/edupress.conf`:
+
+```nginx
+server {
+   listen 80;
+   server_name edupress.net.uz www.edupress.net.uz;
+   location / {
+      proxy_pass http://127.0.0.1:8080;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $remote_addr;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Port $server_port;
+      proxy_set_header X-Forwarded-Host $host;
+   }
+   location /management/health {
+      proxy_pass http://127.0.0.1:8080/management/health;
+   }
+}
+```
+
+Test & reload:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+6. Obtain Let’s Encrypt cert:
+
+```bash
+sudo dnf install -y certbot python3-certbot-nginx || sudo yum install -y certbot python3-certbot-nginx || sudo apt-get install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d edupress.net.uz -d www.edupress.net.uz --agree-tos -m you@example.com --redirect
+```
+
+This auto-adds HTTPS server block + HTTP->HTTPS redirect and a renewal timer. 7. Spring Boot forwarded headers (already on port 8080 behind proxy). Add to `edupress.env` if not present:
+
+```
+SERVER_FORWARD_HEADERS_STRATEGY=framework
+```
+
+8. Lock down: remove 8080 from Security Group, keep 22,80,443 only; optionally set a firewall rule.
+9. Verify:
+
+- `curl -I https://edupress.net.uz` returns 200/302
+- `https://www.ssllabs.com/ssltest/` grade OK.
+
+10. Admin seeding: once admin user present, set `ADMIN_SEED_ENABLED=false` in env and restart service.
+
+Troubleshooting quick refs:
+| Symptom | Check |
+|---------|-------|
+| 502 Bad Gateway | `sudo systemctl status edupress`; ensure app on 127.0.0.1:8080 |
+| Timeout | Security Group / DNS propagation |
+| Wrong redirect (http instead https) | Forward headers strategy property |
+| Cert renew issues | `sudo certbot renew --dry-run` |
