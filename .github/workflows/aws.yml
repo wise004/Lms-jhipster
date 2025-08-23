@@ -29,8 +29,9 @@ jobs:
       SERVER_PORT: 8080
       # Default to external managed Postgres (Aiven). Set repo variable LOCAL_DB=true only if you want local Postgres.
       LOCAL_DB: ${{ vars.LOCAL_DB || 'false' }}
-      DB_NAME: ${{ vars.DB_NAME || 'defaultdb' }}
-      DB_USERNAME: ${{ vars.DB_USERNAME }}
+  DB_NAME: ${{ vars.DB_NAME || 'defaultdb' }}
+  DB_USERNAME: ${{ vars.DB_USERNAME }}
+  PUBLIC_DOMAIN: ${{ vars.PUBLIC_DOMAIN || 'edupress.net.uz' }}
     steps:
       - name: Workflow banner
         shell: bash
@@ -117,18 +118,18 @@ jobs:
         run: |
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "if ! systemctl is-active --quiet edupress; then echo '[Fallback] systemd inactive, starting manual java process'; nohup java -jar ~/app/edupress.jar --server.port=${{ env.SERVER_PORT }} > ~/app/app.nohup.log 2>&1 & sleep 5; pgrep -f edupress.jar || echo '[Fallback] process not found'; fi"
 
-      - name: Health check (management /health)
+      - name: Health check (management /health via public domain)
         shell: bash
         if: ${{ github.event.inputs.prepare_only != 'true' }}
         run: |
           set -e
-          echo "Checking http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}/management/health/liveness"
-          for i in {1..20}; do
-            if curl -fsS --max-time 3 "http://${{ env.EC2_HOST }}:${{ env.SERVER_PORT }}/management/health/liveness" >/dev/null; then
-              echo "App is reachable"
+          echo "Checking https://${{ env.PUBLIC_DOMAIN }}/management/health/liveness"
+          for i in {1..25}; do
+            if curl -fsS --max-time 4 "https://${{ env.PUBLIC_DOMAIN }}/management/health/liveness" >/dev/null; then
+              echo "Public domain health OK"
               exit 0
             fi
-            sleep 3
+            sleep 4
           done
           echo "App not reachable after timeouts; fetching remote diagnostics" >&2
           ssh -i ssh_key.pem -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "echo '--- systemctl status edupress'; systemctl status edupress --no-pager || true; echo '--- last journal'; journalctl -n 80 -u edupress --no-pager || true; echo '--- listening ports'; (ss -ltnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep -E '(:${{ env.SERVER_PORT }}|java)' || true; echo '--- running java ps'; ps -ef | grep java || true; echo '--- env file'; ls -l ~/app/edupress.env; head -n 20 ~/app/edupress.env || true; echo '--- tail manual log'; tail -n 60 ~/app/app.nohup.log 2>/dev/null || true"
